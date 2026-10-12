@@ -313,3 +313,5 @@ bprs_fatal_at (const char *srcfil, int lin, const char *fun,
   fflush (NULL);		/* can be a GDB breakpoint */
   abort ();
 }				/* end bprs_fatal_at */
+
+/* end boehm-rps/util.c */

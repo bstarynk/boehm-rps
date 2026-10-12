@@ -91,4 +91,6 @@ extern uint32_t bprs_hash_string (const Bprs_String * p, bool *pok);
 extern uint32_t bprs_byte_len_string (const Bprs_String * ps, bool *pok);
 extern uint32_t bprs_utf_len_string (const Bprs_String * ps, bool *pok);
 
+//// in compo.c
+extern const char *bprs_shortgit_compo (void);
 #endif /*BOEHMRPS_INCLUDED */
