@@ -22,6 +22,7 @@
 #include <math.h>
 #include <string.h>
 #include <unistr.h>
+#include <ctype.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
@@ -60,6 +61,7 @@ extern void bprs_warning_at (const char *srcfil, int lin, const char *fun,
 extern void bprs_fatal_at (const char *srcfil, int lin, const char *fun,
 			   const char *fmt, ...)
   __attribute__((format (printf, 4, 5), noreturn));
+extern void *bprs_program_dlhandle (void);
 //// end of functions in main.c
 
 
