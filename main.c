@@ -13,7 +13,7 @@
  ****/
 #include "boehmrps.h"
 
-static const char _bprs_main_shortgit[] = SHORTGIT;
+static const char _bprs_main_shortgit[] = BPRS_SHORTGIT;
 
 static int _brps_argc;
 static char **_brps_argv;
@@ -45,5 +45,5 @@ brps_progargv (int rk)
 const char *
 bprs_shortgit_main (void)
 {
-  return _brps_main_shortgit;
+  return _bprs_main_shortgit;
 }				/* end bprs_shortgit_main */
