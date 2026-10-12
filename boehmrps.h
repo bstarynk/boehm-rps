@@ -14,19 +14,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <stdint.h>
 #include <gc.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
 #endif
 
-/// convention: our human written functions are named brps_*
+typedef enum bprs_kind_en Bprs_Kind;
+enum bprs_kind_en
+{
+  BprsKind__None,
+  BprsKind_Int,
+  BprsKind_String,
+  BprsKind_Double,
+  BprsKind_Tuple,
+  BprsKind_Object
+};
+typedef struct bprs_int_st Bprs_Int;
+typedef struct bprs_double_st Bprs_Double;
+typedef struct bprs_string_st Bprs_String;
 
+//// common macros
+#define BPRS_WARNING(Fmt,...) bprs_warning_at(__FILE__,__LINE__,__FUNC__,\
+					      (Fmt),##__VA_ARGS__,NULL)
+#define BPRS_FATAL(Fmt,...) bprs_fatal_at(__FILE__,__LINE__,__FUNC__,\
+					  (Fmt), ##__VA_ARGS__, NULL)
+
+/// convention: our human written functions are named brps_*
 
 //// functions in main.c:::::
 extern int brps_argc (void);
 extern const char *brps_progargv (int rk);
 extern const char *bprs_shortgit_main (void);
+extern void *bprs_dlsym (const char *name);
+extern void bprs_warning_at (const char *srcfil, int lin, const char *fun,
+			     const char *fmt, ...)
+  __attribute__((format (printf, 4, 5)));
+extern void bprs_fatal_at (const char *srcfil, int lin, const char *fun,
+			   const char *fmt, ...)
+  __attribute__((format (printf, 4, 5)));
 //// end of functions in main.c
 
+
+
+
+///// functions in util.c
+extern const char *bprs_shortgit_util (void);
+extern Bprs_Int *bprs_make_int (int64_t i);
+extern int64_t bprs_get_int (const Bprs_Int * p, bool *pok);
 #endif /*BOEHMRPS_INCLUDED */
