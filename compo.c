@@ -47,4 +47,43 @@ bprs_shortgit_compo (void)
   return _bprs_compo_shortgit;
 }				/* end bprs_shortgit_compo */
 
+struct bprs_tuple_st
+{
+  Bprs_Kind tu_kind;
+  int16_t tu_gap;
+  int32_t tu_magic;
+  uint32_t tu_hash;
+  uint32_t tu_size;
+  void *tu_val[];
+};
+
+
+Bprs_Tuple *
+bprs_tuple_make (void **arr, unsigned siz)
+{
+  if (!arr || (uintptr_t) arr < 0x1000)
+    return NULL;
+  if (siz > INT_MAX / 8)
+    BPRS_FATAL ("too many components %ud in tuple", siz);
+  Bprs_Tuple *tup = GC_MALLOC (sizeof (Bprs_Tuple) + siz * sizeof (void *));
+  tup->tu_kind = BprsKind_Tuple;
+#warning incomplete bprs_tuple_make
+  BPRS_FATAL ("unimplemented bprs_tuple_make tup@%p", tup);
+  return tup;
+}				/* end bprs_tuple_make */
+
+struct bprs_object_st
+{
+  Bprs_Kind ob_kind;
+  int16_t ob_gap;
+  int32_t ob_magic;
+  uint32_t ob_hash;
+  uint32_t ob_size;
+  uint32_t ob_hi;
+  uint64_t ob_lo;
+  pthread_mutex_t ob_mtx;
+  void *ob_val[];
+#warning missing fields (eg routine pointers and private data) in object
+};
+
 /* end boehm-rps/util.c */
