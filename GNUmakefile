@@ -3,7 +3,7 @@
 ## Author(s):
 ##      Basile STARYNKEVITCH, 92340 Bourg-la-Reine, France,
 ##                    <basile@starynkevitch.net>
-CC ?= gcc
+CC = gcc
 INDENT ?= indent
 CFLAGS += -Wall -Wextra -Wmissing-prototypes -std=gnu17 -O -g
 CFLAGS += $(shell pkg-config --cflags bdw-gc)

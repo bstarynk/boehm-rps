@@ -23,6 +23,8 @@
 #include <string.h>
 #include <unistr.h>
 #include <ctype.h>
+#include <syslog.h>
+#include <limits.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
@@ -35,12 +37,16 @@ enum bprs_kind_en
   BprsKind_Int,
   BprsKind_String,
   BprsKind_Double,
-  BprsKind_Tuple,
-  BprsKind_Object
+  BprsKind_Tuple,		/* constant tuple of sets */
+  BprsKind_Set,			/* constant ordered set of objects */
+  BprsKind_Object		/* mutable object */
 };
 typedef struct bprs_int_st Bprs_Int;
 typedef struct bprs_double_st Bprs_Double;
 typedef struct bprs_string_st Bprs_String;
+typedef struct bprs_tuple_st Bprs_Tuple;
+typedef struct bprs_object_st Bprs_Object;
+
 
 //// common macros
 #define BPRS_WARNING(Fmt,...) bprs_warning_at(__FILE__,__LINE__,__func__,\
@@ -68,6 +74,9 @@ extern void *bprs_program_dlhandle (void);
 
 
 ///// functions in util.c
+// hash an arbitrary UTF8 string
+extern uint32_t bprs_hash_c_string (const char *s);
+
 /// the pok pointer may be null and is set to true on success
 extern const char *bprs_shortgit_util (void);
 extern Bprs_Int *bprs_make_int (int64_t i);
@@ -76,5 +85,10 @@ extern uint32_t bprs_hash_int (const Bprs_Int * p, bool *pok);
 extern Bprs_Double *bprs_make_double (double d);
 extern double bprs_get_double (const Bprs_Double * p, bool *pok);
 extern uint32_t bprs_hash_double (const Bprs_Double * p, bool *pok);
-extern uint32_t bprs_hash_c_string (const char *s);
+extern Bprs_String *bprs_make_string (const char *);
+extern const char *bprs_get_string (const Bprs_String * p, bool *pok);
+extern uint32_t bprs_hash_string (const Bprs_String * p, bool *pok);
+extern uint32_t bprs_byte_len_string (const Bprs_String * ps, bool *pok);
+extern uint32_t bprs_utf_len_string (const Bprs_String * ps, bool *pok);
+
 #endif /*BOEHMRPS_INCLUDED */

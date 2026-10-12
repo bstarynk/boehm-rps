@@ -36,6 +36,20 @@ struct bprs_double_st
   double d_val;
 };
 
+
+#define BPRS_STRING_MAGIC 654689243	/* 0x2705c3db */
+#define BPRS_MASK_STRING 0x3ffd
+struct bprs_string_st
+{
+  Bprs_Kind s_kind;
+  int16_t s_gap;
+  int32_t s_magic;
+  uint32_t s_hash;
+  uint32_t s_bytlen;
+  uint32_t s_utflen;
+  char s_val[];
+};
+
 const char *
 bprs_shortgit_util (void)
 {
@@ -169,6 +183,105 @@ bprs_hash_c_string (const char *s)
   return h;
 }
 
+Bprs_String *
+bprs_make_string (const char *s)
+{
+  uint32_t bytlen = 0;
+  uint32_t utflen = 0;
+  if (!s || ((uintptr_t) s < 0X1000))
+    return NULL;
+  if (!s[0])
+    return NULL;
+  uint32_t hs = bprs_hash_c_string (s);
+  if (!hs)
+    return NULL;
+  bytlen = strlen (s);
+  utflen = u8_strlen ((uint8_t *) s);
+  if (bytlen > INT_MAX / 4 || utflen > INT_MAX / 4)
+    BPRS_FATAL ("too long string of %ud bytes and %ud UTF8 chars",
+		bytlen, utflen);
+  size_t alsiz = ((sizeof (Bprs_String) + bytlen + 2) | 0xf) + 1;
+  Bprs_String *ps = GC_MALLOC_ATOMIC (alsiz);
+  ps->s_kind = BprsKind_String;
+  ps->s_gap = (intptr_t) ps & BPRS_MASK_STRING;
+  ps->s_magic = BPRS_STRING_MAGIC;
+  ps->s_hash = hs;
+  ps->s_bytlen = bytlen;
+  ps->s_utflen = utflen;
+  strncpy (ps->s_val, s, bytlen);
+  return ps;
+}				/* end bprs_make_string */
+
+const char *
+bprs_get_string (const Bprs_String *ps, bool *pok)
+{
+  if (!ps || ((uintptr_t) ps < 0X1000)
+      || ps->s_kind != BprsKind_String
+      || ps->s_gap != ((intptr_t) ps & BPRS_MASK_STRING)
+      || ps->s_magic != BPRS_STRING_MAGIC)
+    {
+      if (pok)
+	*pok = false;
+      return NULL;
+    };
+  assert (ps->s_hash == bprs_hash_c_string (ps->s_val));
+  if (pok)
+    *pok = true;
+  return ps->s_val;
+}				/* end bprs_get_string */
+
+uint32_t
+bprs_hash_string (const Bprs_String *ps, bool *pok)
+{
+  if (!ps || ((uintptr_t) ps < 0X1000)
+      || ps->s_kind != BprsKind_String
+      || ps->s_gap != ((intptr_t) ps & BPRS_MASK_STRING)
+      || ps->s_magic != BPRS_STRING_MAGIC)
+    {
+      if (pok)
+	*pok = false;
+      return 0;
+    };
+  assert (ps->s_hash == bprs_hash_c_string (ps->s_val));
+  if (pok)
+    *pok = true;
+  return ps->s_hash;
+}				/* end bprs_hash_string */
+
+uint32_t
+bprs_byte_len_string (const Bprs_String *ps, bool *pok)
+{
+  if (!ps || ((uintptr_t) ps < 0X1000)
+      || ps->s_kind != BprsKind_String
+      || ps->s_gap != ((intptr_t) ps & BPRS_MASK_STRING)
+      || ps->s_magic != BPRS_STRING_MAGIC)
+    {
+      if (pok)
+	*pok = false;
+      return 0;
+    };
+  if (pok)
+    *pok = false;
+  return ps->s_bytlen;
+}				/* end bprs_byte_len_string */
+
+
+uint32_t
+bprs_utf_len_string (const Bprs_String *ps, bool *pok)
+{
+  if (!ps || ((uintptr_t) ps < 0X1000)
+      || ps->s_kind != BprsKind_String
+      || ps->s_gap != ((intptr_t) ps & BPRS_MASK_STRING)
+      || ps->s_magic != BPRS_STRING_MAGIC)
+    {
+      if (pok)
+	*pok = false;
+      return 0;
+    };
+  if (pok)
+    *pok = false;
+  return ps->s_utflen;
+}				/* end bprs_utf_len_string */
 
 
 void

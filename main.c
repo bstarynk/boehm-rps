@@ -24,6 +24,7 @@ main (int argc, char **argv)
   GC_INIT ();
   _brps_argc = argc;
   _brps_argv = argv;
+  openlog ("boehm-rps", LOG_CONS | LOG_PID, LOG_USER);
   _bprs_proghdl = dlopen (NULL, RTLD_NOW);
 }				/* end main */
 
