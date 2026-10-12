@@ -15,7 +15,10 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <gc.h>
+#include <assert.h>
+#include <math.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
@@ -63,4 +66,7 @@ extern void bprs_fatal_at (const char *srcfil, int lin, const char *fun,
 extern const char *bprs_shortgit_util (void);
 extern Bprs_Int *bprs_make_int (int64_t i);
 extern int64_t bprs_get_int (const Bprs_Int * p, bool *pok);
+extern uint32_t bprs_hash_int (const Bprs_Int * p, bool *pok);
+extern Bprs_Double *bprs_make_double (double d);
+extern double bprs_get_double (const Bprs_Double * p, bool *pok);
 #endif /*BOEHMRPS_INCLUDED */

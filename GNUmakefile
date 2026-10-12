@@ -28,5 +28,5 @@ obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 
 boehm-rps: $(HUMAN_OBJ_FILES) | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -ULINKBOEHMRPS $(CFLAGS) $(HUMAN_OBJ_FILES) \
-               $(LDFLAGS) -rdynamic -o $@
+               $(LDFLAGS) -rdynamic -lm -ldl -o $@
 
