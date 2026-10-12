@@ -24,7 +24,7 @@ indent:
 	for f in $(HUMAN_C_FILES) ; do  $(INDENT) -v $$f; done
 
 obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
-	$(CC) $(CFLAGS) -DBPRS_BPSHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
+	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
 
 boehm-rps: $(HUMAN_OBJ_FILES) | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -ULINKBOEHMRPS $(CFLAGS) $(HUMAN_OBJ_FILES) \
