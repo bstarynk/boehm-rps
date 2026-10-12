@@ -15,6 +15,7 @@
 
 static const char _bprs_util_shortgit[] = BPRS_SHORTGIT;
 
+
 #define BPRS_INT_MAGIC 68140917	/* 0x40fbf75 */
 #define BPRS_MASK_INT 0x7fef
 struct bprs_int_st
@@ -72,8 +73,7 @@ uint32_t
 bprs_hash_int (const Bprs_Int *p, bool *pok)
 {
   if (!p || p->i_kind != BprsKind_Int
-      || p->i_magic != BPRS_INT_MAGIC
-      || p->i_gap != ((intptr_t) p & 0xffff))
+      || p->i_magic != BPRS_INT_MAGIC || p->i_gap != ((intptr_t) p & 0xffff))
     {
       if (pok)
 	*pok = false;
@@ -139,3 +139,64 @@ bprs_hash_double (const Bprs_Double *p, bool *pok)
     h = 17;
   return h;
 }				/* end bprs_hash_double */
+
+uint32_t
+bprs_hash_c_string (const char *s)
+{
+  if (!s || (uintptr_t) s < 0x100)
+    return 0;
+  unsigned h = 0;
+  const uint8_t *us = (const uint8_t *) s;
+  if (!s)
+    return 0;
+  unsigned bytlen = strlen (s);
+  int cnt = 0;
+  while (us)
+    {
+      ucs4_t uc = 0;
+      int l = u8_mbtoucr (&uc, us, s + bytlen - (char *) us);
+      if (l < 0)
+	BPRS_FATAL ("corrupted UTF8 string %s", s);
+      cnt++;
+      us += l;
+      if (cnt % 2 == 0)
+	h = ((h * 443) ^ (uc * 347)) + (cnt & 0xff);
+      else
+	h = ((h * 311) ^ (uc * 359 + cnt % 17));
+    };
+  if (h == 0)
+    h = bytlen + 1;
+  return h;
+}
+
+
+
+void
+bprs_warning_at (const char *srcfil, int lin, const char *fun,
+		 const char *fmt, ...)
+{
+  va_list arg;
+  fprintf (stderr, "%s:%d <%s> WARNING\n", srcfil, lin, fun);
+  va_start (arg, fmt);
+  vfprintf (stderr, fmt, arg);
+  va_end (arg);
+  fputc ('\n', stderr);
+  fflush (stderr);
+  fflush (NULL);		/* can be a GDB breakpoint */
+}				/* end bprs_warning_at */
+
+void
+bprs_fatal_at (const char *srcfil, int lin, const char *fun,
+	       const char *fmt, ...)
+{
+  va_list args;
+  va_start (args, fmt);
+  fprintf (stderr, "%s:%d <%s> FATAL\n", srcfil, lin, fun);
+  vfprintf (stderr, fmt, args);
+  va_end (args);
+  fputc ('\n', stderr);
+  fflush (stderr);
+  va_end (args);
+  fflush (NULL);		/* can be a GDB breakpoint */
+  abort ();
+}				/* end bprs_fatal_at */

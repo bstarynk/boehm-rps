@@ -13,12 +13,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <dlfcn.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <gc.h>
 #include <assert.h>
 #include <math.h>
+#include <string.h>
+#include <unistr.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
@@ -39,10 +42,10 @@ typedef struct bprs_double_st Bprs_Double;
 typedef struct bprs_string_st Bprs_String;
 
 //// common macros
-#define BPRS_WARNING(Fmt,...) bprs_warning_at(__FILE__,__LINE__,__FUNC__,\
-					      (Fmt),##__VA_ARGS__,NULL)
-#define BPRS_FATAL(Fmt,...) bprs_fatal_at(__FILE__,__LINE__,__FUNC__,\
-					  (Fmt), ##__VA_ARGS__, NULL)
+#define BPRS_WARNING(Fmt,...) bprs_warning_at(__FILE__,__LINE__,__func__,\
+					      (Fmt),##__VA_ARGS__)
+#define BPRS_FATAL(Fmt,...) bprs_fatal_at(__FILE__,__LINE__,__func__,\
+					  (Fmt), ##__VA_ARGS__)
 
 /// convention: our human written functions are named brps_*
 
@@ -56,17 +59,20 @@ extern void bprs_warning_at (const char *srcfil, int lin, const char *fun,
   __attribute__((format (printf, 4, 5)));
 extern void bprs_fatal_at (const char *srcfil, int lin, const char *fun,
 			   const char *fmt, ...)
-  __attribute__((format (printf, 4, 5)));
+  __attribute__((format (printf, 4, 5), noreturn));
 //// end of functions in main.c
 
 
 
 
 ///// functions in util.c
+/// the pok pointer may be null and is set to true on success
 extern const char *bprs_shortgit_util (void);
 extern Bprs_Int *bprs_make_int (int64_t i);
 extern int64_t bprs_get_int (const Bprs_Int * p, bool *pok);
 extern uint32_t bprs_hash_int (const Bprs_Int * p, bool *pok);
 extern Bprs_Double *bprs_make_double (double d);
 extern double bprs_get_double (const Bprs_Double * p, bool *pok);
+extern uint32_t bprs_hash_double (const Bprs_Double * p, bool *pok);
+extern uint32_t bprs_hash_c_string (const char *s);
 #endif /*BOEHMRPS_INCLUDED */
