@@ -1,0 +1,42 @@
+/****************************************************************
+ * file boehm-rps/main.c
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Description:
+ *      This file is part of the Reflective Persistent System (Boehm variant)
+ *      It is its main function
+ *
+ * Author(s):
+ *      Basile Starynkevitch, France   <basile@starynkevitch.net>
+ *
+ *      © Copyright (C) 2026 Basile Starynkevitch
+ *
+ ****/
+#include "boehmrps.h"
+
+static int _brps_argc;
+static char **_brps_argv;
+
+int
+main (int argc, char **argv)
+{
+  GC_INIT ();
+  _brps_argc = argc;
+  _brps_argv = argv;
+}				/* end main */
+
+int
+brps_argc (void)
+{
+  return _brps_argc;
+}				/* end of brps_argc */
+
+const char *
+brps_progargv (int rk)
+{
+  if (rk < 0)
+    rk += _brps_argc;
+  if (rk >= 0 && rk < _brps_argc)
+    return _brps_argv[rk];
+  return NULL;
+}				/* end of brps_argc */
