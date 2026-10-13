@@ -50,7 +50,7 @@ struct bprs_tuple_st
   int32_t tu_magic;
   uint32_t tu_hash;
   uint32_t tu_size;
-  void *tu_val[];
+  const void *tu_val[];
 };
 
 
@@ -204,6 +204,58 @@ struct bprs_object_st
   struct bprs_attrarr_st *ob_attrs;
   void **ob_comps;
 };
+
+static Bprs_Object **_bprs_objhash_arr;
+#define BPRS_OBJHASH_EMPTY (Bprs_Object*)0x7
+static unsigned _bprs_objhash_siz;
+static unsigned _bprs_objhash_cnt;
+static pthread_mutex_t _brps_objhash_mtx
+  = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+static void _bprs_objhash_register (Bprs_Object * pob);
+static void _bprs_objhash_forget (Bprs_Object * pob);
+
+static void
+_bprs_objhash_reserve (unsigned xtra)
+{
+  pthread_mutex_lock (&_brps_objhash_mtx);
+  if (5 * (_bprs_objhash_cnt + xtra + 4) > 4 * _bprs_objhash_siz)
+    {
+      unsigned oldsiz = _bprs_objhash_siz;
+      unsigned oldcnt = _bprs_objhash_cnt;
+      Bprs_Object **oldarr = _bprs_objhash_arr;
+      unsigned newsiz = ((3 * oldcnt / 2 + 9 * xtra / 8 + 50) & 0xff) + 1;
+      Bprs_Object **newarr
+	= GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
+      _bprs_objhash_arr = newarr;
+      _bprs_objhash_siz = newsiz;
+      _bprs_objhash_cnt = 0;
+      for (unsigned ix = 0; ix < oldsiz; ix++)
+	{
+	  Bprs_Object *oldobj = oldarr[ix];
+	  if (oldobj && oldobj != BPRS_OBJHASH_EMPTY)
+	    _bprs_objhash_register (oldobj);
+	  assert (_bprs_objhash_cnt == oldcnt);
+	}
+    }
+  pthread_mutex_unlock (&_brps_objhash_mtx);
+}				/* end brps_objhash_reserve */
+
+static void
+_bprs_objhash_register (Bprs_Object *pob)
+{
+#warning unimplemented _bprs_objhash_register
+  BPRS_FATAL ("unimplemented _bprs_objhash_register pob@%p", pob);
+}				/* end _bprs_objhash_register */
+
+static void
+_bprs_objhash_forget (Bprs_Object *pob)
+{
+#warning unimplemented _bprs_objhash_forget
+  BPRS_FATAL ("unimplemented _bprs_objhash_forget pob@%p", pob);
+}				/* end _bprs_objhash_forget */
+
+
 
 Bprs_Object *
 bprs_object_find (uint32_t hi, uint64_t lo)
