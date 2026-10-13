@@ -15,23 +15,17 @@
 
 static const char _bprs_compo_shortgit[] = BPRS_SHORTGIT;
 
-typedef void bprs_finalizer_sig_t (void *ad);
+typedef void bprs_finalizer_sig_t (void *ad, void *data);
 
 static void bprs_gc_finalizer (void *obj, void *data);
 
 static void *
-bprs_malloc_finalized (size_t sz, bprs_finalizer_sig_t *fun)
+bprs_malloc_finalized (size_t sz, bprs_finalizer_sig_t *fun, void *data)
 {
   void *p = GC_MALLOC (sz);
   if (!fun)
     return p;
-  void *finaldata = NULL;
-  GC_REGISTER_FINALIZER (p, bprs_gc_finalizer, finaldata, NULL, NULL);
-#warning bprs_malloc_finalized need to be reviewed
-   /*** should use GC_REGISTER_FINALIZER(p,gcfinalizer,
-	clientdatd,gcfinalized*old,od)
-    ***/
-  BPRS_FATAL ("unimplemented bprs_malloc_finalized sz=%ld", (long) sz);
+  GC_REGISTER_FINALIZER (p, fun, data, NULL, NULL);
   return p;
 }
 
@@ -123,8 +117,9 @@ bprs_tuple_make_args (unsigned siz, ...)
       return bprs_tuple_make_arr (small_arr, siz);
     };
   if (siz > max_len)
-    BPRS_FATAL ("bprs_tuple_make_args called with too many arguments %d (>%d)",
-		(int) siz, max_len);
+    BPRS_FATAL
+      ("bprs_tuple_make_args called with too many arguments %d (>%d)",
+       (int) siz, max_len);
   const void **arrptr = GC_MALLOC ((siz + 1) * sizeof (void *));
   memset (arrptr, 0, (siz + 1) * sizeof (void *));
   va_start (args, siz);
@@ -207,7 +202,34 @@ struct bprs_object_st
   uint64_t ob_lo;
   pthread_mutex_t ob_mtx;
   struct bprs_attrarr_st *ob_attrs;
-  void** ob_comps;
+  void **ob_comps;
 };
+
+Bprs_Object *
+bprs_object_find (uint32_t hi, uint64_t lo)
+{
+#warning unimplemented bprs_object_find
+  BPRS_FATAL ("unimplemented bprs_object_find hi=%ud lo=%lud", hi,
+	      (unsigned long) lo);
+  return NULL;
+}
+
+Bprs_Object *
+bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
+{
+  Bprs_Object *pob = bprs_object_find (idhi, idlo);
+#warning unimplemented bprs_object_load
+  BPRS_FATAL ("unimplemented bprs_object_find hi=%ud lo=%lud", idhi,
+	      (unsigned long) idlo);
+  return NULL;
+}
+
+Bprs_Object *
+bprs_object_make (unsigned compsize, unsigned attrsize)
+{
+  uint32_t idhi = 0;
+  uint32_t idlo = 0;
+#warning unimplemented bprs_object_make
+}				/* end bprs_object_make */
 
 /* end boehm-rps/compo.c */
