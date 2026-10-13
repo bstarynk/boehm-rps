@@ -207,8 +207,7 @@ struct bprs_object_st
   uint64_t ob_lo;
   pthread_mutex_t ob_mtx;
   struct bprs_attrarr_st *ob_attrs;
-
-#warning missing fields (eg routine pointers and private data) in object
+  void** ob_comps;
 };
 
 /* end boehm-rps/compo.c */

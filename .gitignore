@@ -3,3 +3,4 @@
 obj/*.o
 boehm-rps
 generated/_*_.c
+_*_.c

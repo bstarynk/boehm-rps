@@ -22,6 +22,7 @@
 #include <math.h>
 #include <string.h>
 #include <unistr.h>
+#include <unistd.h>
 #include <ctype.h>
 #include <syslog.h>
 #include <limits.h>
@@ -53,6 +54,11 @@ typedef struct bprs_object_st Bprs_Object;
 					      (Fmt),##__VA_ARGS__)
 #define BPRS_FATAL(Fmt,...) bprs_fatal_at(__FILE__,__LINE__,__func__,\
 					  (Fmt), ##__VA_ARGS__)
+
+//// in generated _list_.c
+extern const char bprs_shortgit[];
+extern const char bprs_sourcedir[];
+extern const char*bprs_human_files[];
 
 /// convention: our human written functions are named brps_*
 

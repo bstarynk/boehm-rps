@@ -15,32 +15,40 @@
 
 static const char _bprs_main_shortgit[] = BPRS_SHORTGIT;
 
-static int _brps_argc;
-static char **_brps_argv;
+static int _bprs_argc;
+static char **_bprs_argv;
 static void *_bprs_proghdl;
+static char _bprs_cwdbuf[256];
+
 int
 main (int argc, char **argv)
 {
   GC_INIT ();
-  _brps_argc = argc;
-  _brps_argv = argv;
+  _bprs_argc = argc;
+  _bprs_argv = argv;
   openlog ("boehm-rps", LOG_CONS | LOG_PID, LOG_USER);
   _bprs_proghdl = dlopen (NULL, RTLD_NOW);
+  if (!_bprs_proghdl)
+    BPRS_FATAL("failed to dlopen self program (%s)\n", dlerror());
+  getcwd(_bprs_cwdbuf, sizeof(_bprs_cwdbuf)-1);
+  syslog(LOG_INFO, "starting %s git %s in %s (srcdir %s)",
+	 _bprs_argv[0], bprs_shortgit,
+	 _bprs_cwdbuf, bprs_sourcedir);
 }				/* end main */
 
 int
 brps_argc (void)
 {
-  return _brps_argc;
+  return _bprs_argc;
 }				/* end of brps_argc */
 
 const char *
 brps_progargv (int rk)
 {
   if (rk < 0)
-    rk += _brps_argc;
-  if (rk >= 0 && rk < _brps_argc)
-    return _brps_argv[rk];
+    rk += _bprs_argc;
+  if (rk >= 0 && rk < _bprs_argc)
+    return _bprs_argv[rk];
   return NULL;
 }				/* end of brps_argc */
 
