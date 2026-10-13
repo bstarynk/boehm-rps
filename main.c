@@ -63,6 +63,15 @@ bprs_show_version(void)
   fflush(stdout);
 } /* end bprs_show_version */
 
+static void
+bprs_show_usage(void)
+{
+  printf("usage of %s:\n", _bprs_argv[0]);
+  printf("\t -V | --version        # show version information\n");
+  printf("\t -H | --help           # show this help\n");
+  printf("\t -L | --load $FILE     # load the given textual $FILE\n");
+  printf("\t -P | --plugin $PLUGIN # dlopen given $PLUGIN\n");
+} /* end of bprs_show_usage */
 
 static void
 _bprs_process_progargs(int argc, char **argv) {
@@ -75,7 +84,20 @@ _bprs_process_progargs(int argc, char **argv) {
       bprs_show_version();
       exit(EXIT_SUCCESS);
       break;
-    }
+    case 'H':
+      bprs_show_usage();
+      exit(EXIT_SUCCESS);
+    case 'P':
+      {
+	void *dlh = dlopen(optarg, RTLD_NOW | RTLD_GLOBAL);
+	if (!dlh)
+	  BPRS_FATAL("failed to dlopen %s: %s",
+		     optarg, dlerror());
+	continue;
+      }
+    };
+    if (optix > argc)
+      return;
   };
 } /* end bprs_process_progargs */
 
