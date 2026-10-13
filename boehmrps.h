@@ -95,10 +95,10 @@ extern uint32_t bprs_utf_len_string (const Bprs_String * ps, bool *pok);
 
 //// in compo.c
 extern const char *bprs_shortgit_compo (void);
-extern Bprs_Tuple *bprs_tuple_make_arr (void **arr, unsigned siz);
+extern Bprs_Tuple *bprs_tuple_make_arr (const void **arr, unsigned siz);
 extern Bprs_Tuple *bprs_tuple_make_args (unsigned siz, ...);
 extern uint32_t bprs_hash_tuple (const Bprs_Tuple * tup, bool *pok);
 extern unsigned bprs_tuple_length (const Bprs_Tuple * rup);
-extern void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
+extern const void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
 #warning missing bprs_object_make
 #endif /*BOEHMRPS_INCLUDED */

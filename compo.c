@@ -61,7 +61,7 @@ struct bprs_tuple_st
 
 
 Bprs_Tuple *
-bprs_tuple_make_arr (void **arr, unsigned siz)
+bprs_tuple_make_arr (const void **arr, unsigned siz)
 {
   if (!arr || (uintptr_t) arr < 0x1000)
     return NULL;
@@ -80,7 +80,7 @@ bprs_tuple_make_arr (void **arr, unsigned siz)
 	  uint32_t hcomp = bprs_value_hash (arr[ix]);
 	  if (hcomp != 0)
 	    {
-	      tup->tu_val[ix] = arr[ix];
+	      tup->tu_val[ix] = (const void *) (arr[ix]);
 	      h = (h * 673) ^ (ix + hcomp * 691);
 	    };
 	}
@@ -105,7 +105,7 @@ bprs_tuple_make_args (unsigned siz, ...)
   va_list args;
   const int small_len = 64;
   const int max_len = 1024;
-  void *small_arr[small_len];
+  const void *small_arr[small_len];
   if (siz == 0)
     return NULL;
   if (siz < small_len)
@@ -123,9 +123,9 @@ bprs_tuple_make_args (unsigned siz, ...)
       return bprs_tuple_make_arr (small_arr, siz);
     };
   if (siz > max_len)
-    BPRS_FATAL ("bprs_tuple_make_arg called with too many arguments %d (>%d)",
+    BPRS_FATAL ("bprs_tuple_make_args called with too many arguments %d (>%d)",
 		(int) siz, max_len);
-  void **arrptr = GC_MALLOC ((siz + 1) * sizeof (void *));
+  const void **arrptr = GC_MALLOC ((siz + 1) * sizeof (void *));
   memset (arrptr, 0, (siz + 1) * sizeof (void *));
   va_start (args, siz);
   for (unsigned ix = 0; ix < siz; ix++)
@@ -155,7 +155,7 @@ bprs_tuple_length (const Bprs_Tuple *tup)
   return tup->tu_size;
 }				/* end bprs_tuple_length */
 
-void *
+const void *
 bprs_tuple_nth (const Bprs_Tuple *tup, int rk)
 {
   unsigned ln = bprs_tuple_length (tup);
@@ -187,17 +187,27 @@ bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok)
   return tup->tu_hash;
 }				/* end bprs_tuple_hash */
 
+struct bprs_attrpair_st
+{
+  Bprs_Object *at_obj;
+  void *at_val;
+};
+
 struct bprs_object_st
 {
   Bprs_Kind ob_kind;
   int16_t ob_gap;
   int32_t ob_magic;
   uint32_t ob_hash;
-  uint32_t ob_size;
+  uint32_t ob_nbcomp;
+  uint32_t ob_nbattr;
+  uint32_t ob_sizcomp;
+  uint32_t ob_sizattr;
   uint32_t ob_hi;
   uint64_t ob_lo;
   pthread_mutex_t ob_mtx;
-  void *ob_val[];
+  struct bprs_attrarr_st *ob_attrs;
+
 #warning missing fields (eg routine pointers and private data) in object
 };
 
