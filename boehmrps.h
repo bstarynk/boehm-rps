@@ -12,6 +12,7 @@
 #define BOEHMRPS_INCLUDED 1
 #define _GNU_SOURCE 1
 #include <stdio.h>
+#include <stdio_ext.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <dlfcn.h>
@@ -31,6 +32,8 @@
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
 #endif
+extern void bprs_load_file (const char *name, FILE * fil);
+#define BPRS_MAGIC_STRING "Boehm-Rps-Store"
 
 typedef enum bprs_kind_en Bprs_Kind;
 enum bprs_kind_en
@@ -59,7 +62,7 @@ typedef struct bprs_object_st Bprs_Object;
 //// in generated _list_.c
 extern const char bprs_shortgit[];
 extern const char bprs_sourcedir[];
-extern const char*bprs_human_files[];
+extern const char *bprs_human_files[];
 
 /// convention: our human written functions are named brps_*
 
@@ -107,5 +110,7 @@ extern Bprs_Tuple *bprs_tuple_make_args (unsigned siz, ...);
 extern uint32_t bprs_hash_tuple (const Bprs_Tuple * tup, bool *pok);
 extern unsigned bprs_tuple_length (const Bprs_Tuple * rup);
 extern const void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
-#warning missing bprs_object_make
+extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
+extern Bprs_Object *bprs_object_load (FILE * fil, uint32_t hi, uint64_t lo);
+extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
 #endif /*BOEHMRPS_INCLUDED */
