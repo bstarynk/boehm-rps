@@ -15,6 +15,7 @@
 
 static const char _bprs_main_shortgit[] = BPRS_SHORTGIT;
 
+bool bprs_verbose;
 static int _bprs_argc;
 static char **_bprs_argv;
 static void *_bprs_proghdl;
@@ -29,6 +30,10 @@ static const struct option _bprs_options[] = {
    .has_arg = no_argument,
    .flag = NULL,
    .val = 'V'},
+  {.name = (const char *) "verbose",
+   .has_arg = no_argument,
+   .flag = NULL,
+   .val = 'v'},
   {.name = (const char *) "load",
    .has_arg = required_argument,
    .flag = NULL,
@@ -68,6 +73,7 @@ static void
 bprs_show_usage (void)
 {
   printf ("usage of %s:\n", _bprs_argv[0]);
+  printf ("\t -v | --verbose        # verbose run\n");
   printf ("\t -V | --version        # show version information\n");
   printf ("\t -H | --help           # show this help\n");
   printf ("\t -L | --load $FILE     # load the given textual $FILE\n");
@@ -81,9 +87,14 @@ _bprs_process_progargs (int argc, char **argv)
   int optix = 0;
   for (;;)
     {
-      argcod = getopt_long (argc, argv, "VHL:P:", _bprs_options, &optix);
+      argcod = getopt_long (argc, argv, "vVHL:P:", _bprs_options, &optix);
       switch (argcod)
 	{
+	case 'v':
+	  bprs_verbose = true;
+	  printf("%s (git %s) runs verbosely (pid %d)\n",
+		 argv[0],  bprs_shortgit, (int)getpid());
+	  break;
 	case 'V':
 	  bprs_show_version ();
 	  exit (EXIT_SUCCESS);

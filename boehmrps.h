@@ -51,7 +51,7 @@ typedef struct bprs_double_st Bprs_Double;
 typedef struct bprs_string_st Bprs_String;
 typedef struct bprs_tuple_st Bprs_Tuple;
 typedef struct bprs_object_st Bprs_Object;
-
+extern bool bprs_verbose;
 
 //// common macros
 #define BPRS_WARNING(Fmt,...) bprs_warning_at(__FILE__,__LINE__,__func__,\
