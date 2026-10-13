@@ -20,6 +20,65 @@ static char **_bprs_argv;
 static void *_bprs_proghdl;
 static char _bprs_cwdbuf[256];
 
+static const struct option _bprs_options[] = {
+  {.name=(const char*)"help",
+   .has_arg=no_argument,
+   .flag=NULL,
+   .val='H'},
+  {.name=(const char*)"version",
+   .has_arg=no_argument,
+   .flag=NULL,
+   .val='V'},
+  {.name=(const char*)"load",
+   .has_arg=required_argument,
+   .flag=NULL,
+   .val='L'},
+  {.name=(const char*)"plugin",
+   .has_arg=required_argument,
+   .flag=NULL,
+   .val='P'},
+  {.name=(const char*)0, .has_arg=0, .flag=NULL, .val=0}
+};
+
+static void
+bprs_show_version(void)
+{
+  typedef const char* gitfun_sigt(void);
+  printf( "version of %s\n", _bprs_argv[0]);
+  printf( "\t global git %s\n", bprs_shortgit);
+  printf( "\t source directory %s\n", bprs_sourcedir);
+  for (const char** pfil = bprs_human_files; *pfil; pfil++) {
+    char nambuf[80];
+    memset(nambuf, 0, sizeof(nambuf));
+    snprintf(nambuf,  sizeof(nambuf), "bprs_shortgit_%.30s", *pfil);
+    char*dot = strchr(nambuf, '.');
+  if (dot)
+    *dot = (char)0;
+  void* ad = dlsym(_bprs_proghdl, nambuf);
+  if (ad)
+    printf( "\t %-16s : %s\n", *pfil, (*(gitfun_sigt*)ad)());
+  else
+    printf( "\t %-16s : ??\n", *pfil);
+  };
+  fflush(stdout);
+} /* end bprs_show_version */
+
+
+static void
+_bprs_process_progargs(int argc, char **argv) {
+  int argcod= -1;
+  int optix= 0;
+  for(;;) {
+    argcod = getopt_long(argc, argv, "VHL:P:", _bprs_options, &optix);
+    switch(argcod) {
+    case 'V':
+      bprs_show_version();
+      exit(EXIT_SUCCESS);
+      break;
+    }
+  };
+} /* end bprs_process_progargs */
+
 int
 main (int argc, char **argv)
 {
@@ -34,6 +93,7 @@ main (int argc, char **argv)
   syslog(LOG_INFO, "starting %s git %s in %s (srcdir %s)",
 	 _bprs_argv[0], bprs_shortgit,
 	 _bprs_cwdbuf, bprs_sourcedir);
+  _bprs_process_progargs(argc, argv);
 }				/* end main */
 
 int
@@ -98,6 +158,8 @@ bprs_value_kind (const void *p)
     case BprsKind_Tuple:
       if (bprs_hash_tuple ((Bprs_Tuple *) p, &ok) != 0 && ok)
 	return BprsKind_Tuple;
+      break;
+    default:
       break;
     }
   return BprsKind__None;

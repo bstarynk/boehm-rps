@@ -33,7 +33,7 @@ _list_.c: GNUmakefile
 	printf "const char bprs_shortgit[] = \"%s\";\n" \
             $(shell ./get-short-git.sh .) > $@
 	printf "const char bprs_sourcedir[] = \"%s\";\n" $(shell realpath $$PWD) >> $@
-	printf "const char* brps_human_files[]= {\n" >> $@
+	printf "const char* bprs_human_files[]= {\n" >> $@
 	for f in $(HUMAN_C_FILES); do printf "  \"%s\",\n" $$f; done >> $@
 	echo "  (const char*)0 };\n" >> $@
 

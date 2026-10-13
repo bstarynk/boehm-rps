@@ -10,7 +10,7 @@
  ****************************************************************/
 #ifndef BOEHMRPS_INCLUDED
 #define BOEHMRPS_INCLUDED 1
-
+#define _GNU_SOURCE 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -26,6 +26,7 @@
 #include <ctype.h>
 #include <syslog.h>
 #include <limits.h>
+#include <getopt.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
