@@ -72,7 +72,8 @@ int64_t
 bprs_get_int (const Bprs_Int *p, bool *pok)
 {
   if (!p || p->i_kind != BprsKind_Int
-      || p->i_magic != BPRS_INT_MAGIC || p->i_gap != ((intptr_t) p & 0xffff))
+      || p->i_magic != BPRS_INT_MAGIC
+      || p->i_gap != ((intptr_t) p & BPRS_MASK_INT))
     {
       if (pok)
 	*pok = false;

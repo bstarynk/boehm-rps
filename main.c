@@ -66,3 +66,60 @@ bprs_dlsym (const char *name)
     }
   return dlsym (_bprs_proghdl, name);
 }				/* end bprs_dlsym */
+
+Bprs_Kind
+bprs_value_kind (const void *p)
+{
+  if (!p || ((uintptr_t) p & 0xf))
+    return BprsKind__None;
+  bool ok = false;
+  switch (*(Bprs_Kind *) p)
+    {
+    case BprsKind_Int:
+      if (bprs_hash_int ((Bprs_Int *) p, &ok) != 0 && ok)
+	return BprsKind_Int;
+      break;
+    case BprsKind_Double:
+      if (bprs_hash_double ((Bprs_Double *) p, &ok) != 0 && ok)
+	return BprsKind_Double;
+      break;
+    case BprsKind_String:
+      if (bprs_hash_string ((Bprs_String *) p, &ok) != 0 && ok)
+	return BprsKind_String;
+      break;
+    case BprsKind_Tuple:
+      if (bprs_hash_tuple ((Bprs_Tuple *) p, &ok) != 0 && ok)
+	return BprsKind_Tuple;
+      break;
+    }
+  return BprsKind__None;
+}				/* end bprs_value_kind */
+
+uint32_t
+bprs_value_hash (const void *p)
+{
+  uint32_t h = 0;
+  bool ok = false;
+  if (!p || ((uintptr_t) p & 0xf))
+    return 0;
+  switch (*(Bprs_Kind *) p)
+    {
+    case BprsKind_Int:
+      h = bprs_hash_int ((Bprs_Int *) p, &ok);
+      break;
+    case BprsKind_Double:
+      h = bprs_hash_double ((Bprs_Double *) p, &ok);
+      break;
+    case BprsKind_String:
+      h = bprs_hash_string ((Bprs_String *) p, &ok);
+      break;
+    case BprsKind_Tuple:
+      h = bprs_hash_tuple ((Bprs_Tuple *) p, &ok);
+      break;
+    default:
+      return 0;
+    }
+  if (!ok)
+    return 0;
+  return h;
+}				/* end of bprs_value_hash  */
