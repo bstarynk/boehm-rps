@@ -92,8 +92,8 @@ _bprs_process_progargs (int argc, char **argv)
 	{
 	case 'v':
 	  bprs_verbose = true;
-	  printf("%s (git %s) runs verbosely (pid %d)\n",
-		 argv[0],  bprs_shortgit, (int)getpid());
+	  printf ("%s (git %s) runs verbosely (pid %d)\n",
+		  argv[0], bprs_shortgit, (int) getpid ());
 	  break;
 	case 'V':
 	  bprs_show_version ();
