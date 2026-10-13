@@ -21,85 +21,88 @@ static void *_bprs_proghdl;
 static char _bprs_cwdbuf[256];
 
 static const struct option _bprs_options[] = {
-  {.name=(const char*)"help",
-   .has_arg=no_argument,
-   .flag=NULL,
-   .val='H'},
-  {.name=(const char*)"version",
-   .has_arg=no_argument,
-   .flag=NULL,
-   .val='V'},
-  {.name=(const char*)"load",
-   .has_arg=required_argument,
-   .flag=NULL,
-   .val='L'},
-  {.name=(const char*)"plugin",
-   .has_arg=required_argument,
-   .flag=NULL,
-   .val='P'},
-  {.name=(const char*)0, .has_arg=0, .flag=NULL, .val=0}
+  {.name = (const char *) "help",
+   .has_arg = no_argument,
+   .flag = NULL,
+   .val = 'H'},
+  {.name = (const char *) "version",
+   .has_arg = no_argument,
+   .flag = NULL,
+   .val = 'V'},
+  {.name = (const char *) "load",
+   .has_arg = required_argument,
+   .flag = NULL,
+   .val = 'L'},
+  {.name = (const char *) "plugin",
+   .has_arg = required_argument,
+   .flag = NULL,
+   .val = 'P'},
+  {.name = (const char *) 0,.has_arg = 0,.flag = NULL,.val = 0}
 };
 
 static void
-bprs_show_version(void)
+bprs_show_version (void)
 {
-  typedef const char* gitfun_sigt(void);
-  printf( "version of %s\n", _bprs_argv[0]);
-  printf( "\t global git %s\n", bprs_shortgit);
-  printf( "\t source directory %s\n", bprs_sourcedir);
-  for (const char** pfil = bprs_human_files; *pfil; pfil++) {
-    char nambuf[80];
-    memset(nambuf, 0, sizeof(nambuf));
-    snprintf(nambuf,  sizeof(nambuf), "bprs_shortgit_%.30s", *pfil);
-    char*dot = strchr(nambuf, '.');
-  if (dot)
-    *dot = (char)0;
-  void* ad = dlsym(_bprs_proghdl, nambuf);
-  if (ad)
-    printf( "\t %-16s : %s\n", *pfil, (*(gitfun_sigt*)ad)());
-  else
-    printf( "\t %-16s : ??\n", *pfil);
-  };
-  fflush(stdout);
-} /* end bprs_show_version */
-
-static void
-bprs_show_usage(void)
-{
-  printf("usage of %s:\n", _bprs_argv[0]);
-  printf("\t -V | --version        # show version information\n");
-  printf("\t -H | --help           # show this help\n");
-  printf("\t -L | --load $FILE     # load the given textual $FILE\n");
-  printf("\t -P | --plugin $PLUGIN # dlopen given $PLUGIN\n");
-} /* end of bprs_show_usage */
-
-static void
-_bprs_process_progargs(int argc, char **argv) {
-  int argcod= -1;
-  int optix= 0;
-  for(;;) {
-    argcod = getopt_long(argc, argv, "VHL:P:", _bprs_options, &optix);
-    switch(argcod) {
-    case 'V':
-      bprs_show_version();
-      exit(EXIT_SUCCESS);
-      break;
-    case 'H':
-      bprs_show_usage();
-      exit(EXIT_SUCCESS);
-    case 'P':
-      {
-	void *dlh = dlopen(optarg, RTLD_NOW | RTLD_GLOBAL);
-	if (!dlh)
-	  BPRS_FATAL("failed to dlopen %s: %s",
-		     optarg, dlerror());
-	continue;
-      }
+  typedef const char *gitfun_sigt (void);
+  printf ("version of %s\n", _bprs_argv[0]);
+  printf ("\t global git %s\n", bprs_shortgit);
+  printf ("\t source directory %s\n", bprs_sourcedir);
+  for (const char **pfil = bprs_human_files; *pfil; pfil++)
+    {
+      char nambuf[80];
+      memset (nambuf, 0, sizeof (nambuf));
+      snprintf (nambuf, sizeof (nambuf), "bprs_shortgit_%.30s", *pfil);
+      char *dot = strchr (nambuf, '.');
+      if (dot)
+	*dot = (char) 0;
+      void *ad = dlsym (_bprs_proghdl, nambuf);
+      if (ad)
+	printf ("\t %-16s : %s\n", *pfil, (*(gitfun_sigt *) ad) ());
+      else
+	printf ("\t %-16s : ??\n", *pfil);
     };
-    if (optix > argc)
-      return;
-  };
-} /* end bprs_process_progargs */
+  fflush (stdout);
+}				/* end bprs_show_version */
+
+static void
+bprs_show_usage (void)
+{
+  printf ("usage of %s:\n", _bprs_argv[0]);
+  printf ("\t -V | --version        # show version information\n");
+  printf ("\t -H | --help           # show this help\n");
+  printf ("\t -L | --load $FILE     # load the given textual $FILE\n");
+  printf ("\t -P | --plugin $PLUGIN # dlopen given $PLUGIN\n");
+}				/* end of bprs_show_usage */
+
+static void
+_bprs_process_progargs (int argc, char **argv)
+{
+  int argcod = -1;
+  int optix = 0;
+  for (;;)
+    {
+      argcod = getopt_long (argc, argv, "VHL:P:", _bprs_options, &optix);
+      switch (argcod)
+	{
+	case 'V':
+	  bprs_show_version ();
+	  exit (EXIT_SUCCESS);
+	  break;
+	case 'H':
+	  bprs_show_usage ();
+	  exit (EXIT_SUCCESS);
+	case 'P':
+	  {
+	    void *dlh = dlopen (optarg, RTLD_NOW | RTLD_GLOBAL);
+	    if (!dlh)
+	      BPRS_FATAL ("failed to dlopen %s: %s", optarg, dlerror ());
+	    continue;
+	  }
+	};
+      if (optix > argc)
+	return;
+    };
+}				/* end bprs_process_progargs */
 
 int
 main (int argc, char **argv)
@@ -110,12 +113,11 @@ main (int argc, char **argv)
   openlog ("boehm-rps", LOG_CONS | LOG_PID, LOG_USER);
   _bprs_proghdl = dlopen (NULL, RTLD_NOW);
   if (!_bprs_proghdl)
-    BPRS_FATAL("failed to dlopen self program (%s)\n", dlerror());
-  getcwd(_bprs_cwdbuf, sizeof(_bprs_cwdbuf)-1);
-  syslog(LOG_INFO, "starting %s git %s in %s (srcdir %s)",
-	 _bprs_argv[0], bprs_shortgit,
-	 _bprs_cwdbuf, bprs_sourcedir);
-  _bprs_process_progargs(argc, argv);
+    BPRS_FATAL ("failed to dlopen self program (%s)\n", dlerror ());
+  getcwd (_bprs_cwdbuf, sizeof (_bprs_cwdbuf) - 1);
+  syslog (LOG_INFO, "starting %s git %s in %s (srcdir %s)",
+	  _bprs_argv[0], bprs_shortgit, _bprs_cwdbuf, bprs_sourcedir);
+  _bprs_process_progargs (argc, argv);
 }				/* end main */
 
 int
