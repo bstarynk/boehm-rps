@@ -304,6 +304,8 @@ _bprs_objhash_forget (Bprs_Object *pob)
   assert (pob != NULL && pob != BPRS_OBJHASH_EMPTY);
   assert (pob->ob_kind == BprsKind_Object);
   assert (pob->ob_hash != 0);
+  assert (pob->ob_hash
+	  == bprs_hash_for_object_hi_lo (pob->ob_hi, pob->ob_lo));
   assert (pob->ob_index != 0);
   if (_bprs_objhash_arr[pob->ob_index] != pob)
     BPRS_FATAL ("corruption in _bprs_objhash_forget pob@%p", pob);
@@ -345,20 +347,48 @@ _bprs_objhash_forget (Bprs_Object *pob)
 
 
 Bprs_Object *
-bprs_object_find (uint32_t hi, uint64_t lo)
+bprs_object_find (uint32_t idhi, uint64_t idlo)
 {
   Bprs_Object *res = NULL;
   pthread_mutex_lock (&_brps_objhash_mtx);
-#warning unimplemented bprs_object_find
-  if (hi == 0 || lo == 0)
+  if (idhi == 0 || idlo == 0)
     goto end;
-  uint32_t h = bprs_hash_for_object_hi_lo (hi, lo);
+  uint32_t h = bprs_hash_for_object_hi_lo (idhi, idlo);
+  if (h == 0)
+    goto end;
+  unsigned startix = h % _bprs_objhash_siz;
+  if (startix == 0)
+    startix = 1;
+  for (unsigned ix = startix; ix < _bprs_objhash_siz; ix++)
+    {
+      Bprs_Object *oldobj = _bprs_objhash_arr[ix];
+      if (!oldobj)
+	break;
+      if (oldobj != BPRS_OBJHASH_EMPTY
+	  && oldobj->ob_hi == idhi && oldobj->ob_lo == idlo)
+	{
+	  assert (oldobj->ob_index == ix);
+	  res = oldobj;
+	  goto end;
+	}
+    }
+  for (unsigned ix = 1; ix < startix; ix++)
+    {
+      Bprs_Object *oldobj = _bprs_objhash_arr[ix];
+      if (!oldobj)
+	break;
+      if (oldobj != BPRS_OBJHASH_EMPTY
+	  && oldobj->ob_hi == idhi && oldobj->ob_lo == idlo)
+	{
+	  assert (oldobj->ob_index == ix);
+	  res = oldobj;
+	  goto end;
+	}
+    }
 end:
   pthread_mutex_unlock (&_brps_objhash_mtx);
-  BPRS_FATAL ("unimplemented bprs_object_find hi=%ud lo=%lud", hi,
-	      (unsigned long) lo);
   return res;
-}
+}				/* end of bprs_object_find */
 
 Bprs_Object *
 bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
