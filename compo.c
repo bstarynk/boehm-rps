@@ -227,6 +227,7 @@ _bprs_objhash_reserve (unsigned xtra)
       unsigned newsiz = ((3 * oldcnt / 2 + 9 * xtra / 8 + 50) & 0xff) + 1;
       Bprs_Object **newarr
 	= GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
+      memset ((void *) newarr, 0, newsiz * sizeof (Bprs_Object *));
       _bprs_objhash_arr = newarr;
       _bprs_objhash_siz = newsiz;
       _bprs_objhash_cnt = 0;
@@ -302,10 +303,28 @@ _bprs_objhash_forget (Bprs_Object *pob)
       unsigned newsiz = ((3 * oldcnt / 2 + 50) & 0xff) + 1;
       if (newsiz < oldsiz)
 	{
+	  Bprs_Object **newarr
+	    = GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
+	  memset ((void *) newarr, 0, newsiz * sizeof (Bprs_Object *));
+	  _bprs_objhash_arr = newarr;
+	  _bprs_objhash_siz = newsiz;
+	  _bprs_objhash_cnt = 0;
+	  for (unsigned ix = 0; ix < oldsiz; ix++)
+	    {
+	      Bprs_Object *oldobj = oldarr[ix];
+	      if (oldobj == pob)
+		continue;
+	      if (oldobj && oldobj != BPRS_OBJHASH_EMPTY)
+		{
+		  assert (oldobj->ob_kind == BprsKind_Object);
+		  oldobj->ob_index = 0;
+		  _bprs_objhash_register (oldobj);
+		}
+	    }
+	  assert (_bprs_objhash_cnt == oldcnt - 1);
+	  GC_FREE (oldarr);
 	}
     }
-#warning unimplemented _bprs_objhash_forget
-  BPRS_FATAL ("unimplemented _bprs_objhash_forget pob@%p", pob);
 }				/* end _bprs_objhash_forget */
 
 
