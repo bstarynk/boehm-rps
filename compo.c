@@ -242,6 +242,21 @@ _bprs_objhash_reserve (unsigned xtra)
   pthread_mutex_unlock (&_brps_objhash_mtx);
 }				/* end brps_objhash_reserve */
 
+uint32_t
+bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo)
+{
+  uint32_t h = 0;
+  if (hi == 0 || lo == 0)
+    {
+      return 0;
+    }
+  h = (597 * hi) ^ (uint32_t) (lo % 65587);
+  if (h == 0)
+    h = 3 + (hi & 0x3ff) + (lo & 0x7ff);
+  assert (h != 0);
+  return h;
+}
+
 static void
 _bprs_objhash_register (Bprs_Object *pob)
 {
@@ -332,10 +347,17 @@ _bprs_objhash_forget (Bprs_Object *pob)
 Bprs_Object *
 bprs_object_find (uint32_t hi, uint64_t lo)
 {
+  Bprs_Object *res = NULL;
+  pthread_mutex_lock (&_brps_objhash_mtx);
 #warning unimplemented bprs_object_find
+  if (hi == 0 || lo == 0)
+    goto end;
+  uint32_t h = bprs_hash_for_object_hi_lo (hi, lo);
+end:
+  pthread_mutex_unlock (&_brps_objhash_mtx);
   BPRS_FATAL ("unimplemented bprs_object_find hi=%ud lo=%lud", hi,
 	      (unsigned long) lo);
-  return NULL;
+  return res;
 }
 
 Bprs_Object *

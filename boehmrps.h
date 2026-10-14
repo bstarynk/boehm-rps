@@ -114,4 +114,5 @@ extern const void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE * fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
+extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
 #endif /*BOEHMRPS_INCLUDED */
