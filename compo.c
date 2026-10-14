@@ -192,7 +192,7 @@ struct bprs_object_st
 {
   Bprs_Kind ob_kind;
   int16_t ob_gap;
-  int32_t ob_magic;
+  uint32_t ob_index;		/* index in _bprs_objhash_arr */
   uint32_t ob_hash;
   uint32_t ob_nbcomp;
   uint32_t ob_nbattr;
@@ -244,13 +244,66 @@ _bprs_objhash_reserve (unsigned xtra)
 static void
 _bprs_objhash_register (Bprs_Object *pob)
 {
-#warning unimplemented _bprs_objhash_register
-  BPRS_FATAL ("unimplemented _bprs_objhash_register pob@%p", pob);
+  // the caller should have locked _bprs_objhash_mtx
+  assert (_bprs_objhash_arr != NULL);
+  assert (_bprs_objhash_siz > 4);
+  assert (pob != NULL && pob != BPRS_OBJHASH_EMPTY);
+  assert (pob->ob_kind == BprsKind_Object);
+  assert (pob->ob_hash != 0);
+  assert (pob->ob_index == 0);
+  assert (5 * _bprs_objhash_cnt < 4 * _bprs_objhash_siz);
+  unsigned startix = pob->ob_hash % _bprs_objhash_siz;
+  if (startix == 0)
+    startix = 1;
+  for (unsigned ix = startix; ix < _bprs_objhash_siz; ix++)
+    {
+      Bprs_Object *oldobj = _bprs_objhash_arr[ix];
+      if (!oldobj || oldobj != BPRS_OBJHASH_EMPTY)
+	{
+	  _bprs_objhash_arr[ix] = pob;
+	  _bprs_objhash_cnt++;
+	  pob->ob_index = ix;
+	  return;
+	}
+    }
+  for (unsigned ix = 1; ix < startix; ix++)
+    {
+      Bprs_Object *oldobj = _bprs_objhash_arr[ix];
+      if (!oldobj || oldobj != BPRS_OBJHASH_EMPTY)
+	{
+	  _bprs_objhash_arr[ix] = pob;
+	  _bprs_objhash_cnt++;
+	  pob->ob_index = ix;
+	  return;
+	}
+    }
+  BPRS_FATAL ("corruption in _bprs_objhash_register pob@%p", pob);
 }				/* end _bprs_objhash_register */
 
 static void
 _bprs_objhash_forget (Bprs_Object *pob)
 {
+  assert (_bprs_objhash_arr != NULL);
+  assert (_bprs_objhash_siz > 4);
+  assert (pob != NULL && pob != BPRS_OBJHASH_EMPTY);
+  assert (pob->ob_kind == BprsKind_Object);
+  assert (pob->ob_hash != 0);
+  assert (pob->ob_index != 0);
+  if (_bprs_objhash_arr[pob->ob_index] != pob)
+    BPRS_FATAL ("corruption in _bprs_objhash_forget pob@%p", pob);
+  pob->ob_index = 0;
+  _bprs_objhash_arr[pob->ob_index] = BPRS_OBJHASH_EMPTY;
+  _bprs_objhash_cnt--;
+  if (_bprs_objhash_cnt < _bprs_objhash_siz / 3 && _bprs_objhash_siz > 1000)
+    {
+      unsigned oldsiz = _bprs_objhash_siz;
+      unsigned oldcnt = _bprs_objhash_cnt;
+      Bprs_Object **oldarr = _bprs_objhash_arr;
+      unsigned newsiz = ((3 * oldcnt / 2 + 50) & 0xff) + 1;
+      if (newsiz < oldsiz)
+	{
+	}
+    }
 #warning unimplemented _bprs_objhash_forget
   BPRS_FATAL ("unimplemented _bprs_objhash_forget pob@%p", pob);
 }				/* end _bprs_objhash_forget */
