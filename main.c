@@ -221,6 +221,9 @@ bprs_value_hash (const void *p)
     case BprsKind_Tuple:
       h = bprs_hash_tuple ((Bprs_Tuple *) p, &ok);
       break;
+    case BprsKind_Object:
+      h = bprs_hash_object ((Bprs_Object *) p, &ok);
+      break;
     default:
       return 0;
     }

@@ -15,25 +15,26 @@
 
 static const char _bprs_compo_shortgit[] = BPRS_SHORTGIT;
 
-typedef void bprs_finalizer_sig_t (void *ad, void *data);
-
-static void bprs_gc_finalizer (void *obj, void *data);
-
-static void *
-bprs_malloc_finalized (size_t sz, bprs_finalizer_sig_t *fun, void *data)
-{
-  void *p = GC_MALLOC (sz);
-  if (!fun)
-    return p;
-  GC_REGISTER_FINALIZER (p, fun, data, NULL, NULL);
-  return p;
-}
-
-void
-bprs_gc_finalizer (void *obj, void *data)
-{
-  BPRS_FATAL ("unimplemented bprs_gc_finalizer obj=%p data=%p", obj, data);
-}
+// typedef void bprs_finalizer_sig_t (void *ad, void *data);
+//
+// static void bprs_gc_finalizer (void *obj, void *data);
+//
+// static void *
+// bprs_malloc_finalized (size_t sz, bprs_finalizer_sig_t *fun, void *data)
+// {
+//   void *p = GC_MALLOC (sz);
+//   memset(p, 0, sz);
+//   if (!fun)
+//     return p;
+//   GC_REGISTER_FINALIZER (p, fun, data, NULL, NULL);
+//   return p;
+// }
+//
+// void
+// bprs_gc_finalizer (void *obj, void *data)
+// {
+//   BPRS_FATAL ("unimplemented bprs_gc_finalizer obj=%p data=%p", obj, data);
+// }   
 
 const char *
 bprs_shortgit_compo (void)
@@ -180,7 +181,7 @@ bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok)
   if (pok)
     *pok = true;
   return tup->tu_hash;
-}				/* end bprs_tuple_hash */
+}				/* end bprs_hash_tuple */
 
 struct bprs_attrpair_st
 {
@@ -192,6 +193,7 @@ struct bprs_object_st
 {
   Bprs_Kind ob_kind;
   int16_t ob_gap;
+  uint32_t ob_magic;
   uint32_t ob_index;		/* index in _bprs_objhash_arr */
   uint32_t ob_hash;
   uint32_t ob_nbcomp;
@@ -207,6 +209,8 @@ struct bprs_object_st
 
 static Bprs_Object **_bprs_objhash_arr;
 #define BPRS_OBJHASH_EMPTY (Bprs_Object*)0x7
+#define BPRS_OBJECT_MAGIC  943520863	/*0x383cfc5f */
+#define BPRS_MASK_OBJECT 0xf5fc
 static unsigned _bprs_objhash_siz;
 static unsigned _bprs_objhash_cnt;
 static pthread_mutex_t _brps_objhash_mtx
@@ -390,21 +394,64 @@ end:
   return res;
 }				/* end of bprs_object_find */
 
+uint32_t
+bprs_hash_object (const Bprs_Object *pob, bool *pok)
+{
+  if (!pob || (uintptr_t) pob < 0x1000
+      || pob->ob_kind != BprsKind_Object
+      || pob->ob_magic != BPRS_OBJECT_MAGIC
+      || pob->ob_gap != ((intptr_t) pob & BPRS_MASK_OBJECT))
+    {
+      if (pok)
+	*pok = false;
+      return 0;
+    };
+  assert (pob->ob_hash != 0);
+  if (pok)
+    *pok = true;
+  return pob->ob_hash;
+}				/* end bprs_hash_object */
+
 Bprs_Object *
 bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
 {
   Bprs_Object *pob = bprs_object_find (idhi, idlo);
-#warning unimplemented bprs_object_load
-  BPRS_FATAL ("unimplemented bprs_object_find hi=%ud lo=%lud", idhi,
+  assert (fil != NULL);
+  if (pob == NULL)
+    {
+      uint32_t h = bprs_hash_for_object_hi_lo (idhi, idlo);
+      pthread_mutex_lock (&_brps_objhash_mtx);
+      pob = GC_MALLOC (sizeof (Bprs_Object));
+      pob->ob_gap = (intptr_t) pob & BPRS_MASK_OBJECT;
+      pob->ob_kind = BprsKind_Object;
+      pob->ob_index = 0;
+      pob->ob_hash = h;
+      pob->ob_nbcomp = 0;
+      pob->ob_nbattr = 0;
+      pob->ob_sizcomp = 0;
+      pob->ob_sizattr = 0;
+      pob->ob_hi = idhi;
+      pob->ob_lo = idlo;
+      pthread_mutex_init (&pob->ob_mtx, NULL);
+      pob->ob_attrs = NULL;
+      pob->ob_comps = NULL;
+      _bprs_objhash_register (pob);
+      goto end;
+    end:
+      pthread_mutex_unlock (&_brps_objhash_mtx);
+    };
+#warning incomplete bprs_object_load
+  BPRS_FATAL ("incomplete bprs_object_find hi=%ud lo=%lud", idhi,
 	      (unsigned long) idlo);
-  return NULL;
+  return pob;
 }
 
 Bprs_Object *
 bprs_object_make (unsigned compsize, unsigned attrsize)
 {
   uint32_t idhi = 0;
-  uint32_t idlo = 0;
+  uint64_t idlo = 0;
+#warning use random and perhaos srandom in main
 #warning unimplemented bprs_object_make
 }				/* end bprs_object_make */
 

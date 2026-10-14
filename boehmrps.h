@@ -111,6 +111,7 @@ extern Bprs_Tuple *bprs_tuple_make_args (unsigned siz, ...);
 extern uint32_t bprs_hash_tuple (const Bprs_Tuple * tup, bool *pok);
 extern unsigned bprs_tuple_length (const Bprs_Tuple * rup);
 extern const void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
+extern uint32_t bprs_hash_object (const Bprs_Object * pob, bool *pok);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE * fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
