@@ -20,6 +20,7 @@ static int _bprs_argc;
 static char **_bprs_argv;
 static void *_bprs_proghdl;
 static char _bprs_cwdbuf[256];
+static long _bprs_random;
 
 static const struct option _bprs_options[] = {
   {.name = (const char *) "help",
@@ -139,13 +140,14 @@ _bprs_process_progargs (int argc, char **argv)
 	      BPRS_FATAL ("too short or bad random initializer %s\n"
 			  " - eight bytes in hexa required but got %d",
 			  optarg, i);
-	    long l = strtol(optarg, NULL, 16);
-	    if (!initstate (l, randbuf, (size_t) i))
-	      BPRS_FATAL ("initstate %s failed", optarg);
-	     l= random();
+	    _bprs_random = strtol (optarg, NULL, 16);
+	    if (!initstate (_bprs_random, randbuf, (size_t) i))
+	      BPRS_FATAL ("initstate %s failed (random %ld)", optarg,
+			  _bprs_random);
+	    _bprs_random = random ();
 	    if (bprs_verbose)
-	      printf("%s initialized random with %s first random %ld\n",
-		     _bprs_argv[0], optarg, l);
+	      printf ("%s initialized random with %s first random %ld\n",
+		      _bprs_argv[0], optarg, _bprs_random);
 	  }
 	};
       if (optix > argc)
