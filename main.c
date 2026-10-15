@@ -42,6 +42,10 @@ static const struct option _bprs_options[] = {
    .has_arg = required_argument,
    .flag = NULL,
    .val = 'P'},
+  {.name = (const char *) "random-seed",
+   .has_arg = required_argument,
+   .flag = NULL,
+   .val = 'R'},
   {.name = (const char *) 0,.has_arg = 0,.flag = NULL,.val = 0}
 };
 
@@ -73,11 +77,13 @@ static void
 bprs_show_usage (void)
 {
   printf ("usage of %s:\n", _bprs_argv[0]);
-  printf ("\t -v | --verbose        # verbose run\n");
-  printf ("\t -V | --version        # show version information\n");
-  printf ("\t -H | --help           # show this help\n");
-  printf ("\t -L | --load $FILE     # load the given textual $FILE\n");
-  printf ("\t -P | --plugin $PLUGIN # dlopen given $PLUGIN\n");
+  puts ("\t -v | --verbose           # verbose run");
+  puts ("\t -V | --version           # show version information");
+  puts ("\t -H | --help              # show this help");
+  puts ("\t -L | --load $FILE        # load the given textual $FILE");
+  puts ("\t -P | --plugin $PLUGIN    # dlopen given $PLUGIN");
+  puts ("\t -R | --random-seed $HEX  # $HEX is an hexadecimal string");
+  puts ("                            # for initstate(3) of random(3)");
 }				/* end of bprs_show_usage */
 
 static void
@@ -87,7 +93,7 @@ _bprs_process_progargs (int argc, char **argv)
   int optix = 0;
   for (;;)
     {
-      argcod = getopt_long (argc, argv, "vVHL:P:", _bprs_options, &optix);
+      argcod = getopt_long (argc, argv, "vVHL:P:R:", _bprs_options, &optix);
       switch (argcod)
 	{
 	case 'v':
@@ -108,6 +114,33 @@ _bprs_process_progargs (int argc, char **argv)
 	    if (!dlh)
 	      BPRS_FATAL ("failed to dlopen %s: %s", optarg, dlerror ());
 	    continue;
+	  }
+	case 'R':
+	  {
+	    const int randsiz = 256;
+	    char randbuf[randsiz + 16];
+	    int i = 0;
+	    memset (randbuf, 0, sizeof (randbuf));
+	    for (const char *pc = optarg;
+		 i < randsiz
+		 && pc && pc[0] && isxdigit (pc[0])
+		 && pc[1] && isxdigit (pc[1]); (pc += 2), (i++))
+	      {
+		char hxbuf[4];
+		char *endbuf = NULL;
+		hxbuf[0] = pc[0];
+		hxbuf[1] = pc[1];
+		hxbuf[2] = hxbuf[3] = 0;
+		unsigned long hb = strtol (hxbuf, &endbuf, 16);
+		assert (endbuf == hxbuf + 2);
+		randbuf[i] = (char) (hb & 0xff);
+	      };
+	    if (i < 8)
+	      BPRS_FATAL ("too short or bad random initializer %s\n"
+			  " - eight bytes in hexa required but got %d",
+			  optarg, i);
+	    if (!initstate (1234, randbuf, (size_t) i))
+	      BPRS_FATAL ("initstate %s failed", optarg);
 	  }
 	};
       if (optix > argc)

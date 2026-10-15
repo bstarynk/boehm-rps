@@ -422,6 +422,7 @@ bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
       uint32_t h = bprs_hash_for_object_hi_lo (idhi, idlo);
       pthread_mutex_lock (&_brps_objhash_mtx);
       pob = GC_MALLOC (sizeof (Bprs_Object));
+      memset (pob, 0, sizeof (Bprs_Object));
       pob->ob_gap = (intptr_t) pob & BPRS_MASK_OBJECT;
       pob->ob_kind = BprsKind_Object;
       pob->ob_index = 0;
@@ -441,8 +442,6 @@ bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
       pthread_mutex_unlock (&_brps_objhash_mtx);
     };
 #warning incomplete bprs_object_load
-  BPRS_FATAL ("incomplete bprs_object_find hi=%ud lo=%lud", idhi,
-	      (unsigned long) idlo);
   return pob;
 }
 
@@ -451,7 +450,7 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
 {
   uint32_t idhi = 0;
   uint64_t idlo = 0;
-#warning use random and perhaos srandom in main
+#warning use random and perhpos srandom in main
 #warning unimplemented bprs_object_make
 }				/* end bprs_object_make */
 
