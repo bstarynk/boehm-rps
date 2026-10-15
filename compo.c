@@ -450,6 +450,15 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
 {
   uint32_t idhi = 0;
   uint64_t idlo = 0;
+  if (compsize > INT_MAX/16 || attrsize>INT_MAX/16)
+    BPRS_FATAL("too big compsize=%ud or attrsize=%ud:\n"
+	       " bprs_object_make (max=%ud)",
+	       compsize, attrsize, INT_MAX/16);
+  while (idhi < 1024 && idlo < (1L << 20))
+    {
+      idhi = (uint32_t) random ();
+      idlo = (uint64_t) random ();
+    };
 #warning use random and perhpos srandom in main
 #warning unimplemented bprs_object_make
 }				/* end bprs_object_make */
