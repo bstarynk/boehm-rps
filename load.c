@@ -39,8 +39,14 @@ bprs_load_file (const char *name, FILE *fil)
   if (feof (fil))
     BPRS_FATAL ("loaded file %s:%d without magic string %s\n",
 		name, linecnt, BPRS_MAGIC_STRING);
-  memset (linebuf, 0, linsiz);
-  readsiz = getline (&linebuf, &linsiz, fil);
+  do
+    {
+      memset (linebuf, 0, linsiz);
+      readsiz = getline (&linebuf, &linsiz, fil);
+#warning bprs_load_file incomplete
+      BPRS_FATAL ("incomplete bpr_load_file (%s:%d)", __FILE__, __LINE__);
+    }
+  while (readsiz > 0 && !feof (fil));
 }				/* end bprs_load_file */
 
 ////////// end of file boehm-rps/load.c
