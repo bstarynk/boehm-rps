@@ -116,4 +116,9 @@ extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE * fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
+
+
+//// in load.c
+extern const char *bprs_shortgit_load (void);
+extern void bprs_load_file (const char *name, FILE *fil);
 #endif /*BOEHMRPS_INCLUDED */
