@@ -139,8 +139,13 @@ _bprs_process_progargs (int argc, char **argv)
 	      BPRS_FATAL ("too short or bad random initializer %s\n"
 			  " - eight bytes in hexa required but got %d",
 			  optarg, i);
-	    if (!initstate (1234, randbuf, (size_t) i))
+	    long l = strtol(optarg, NULL, 16);
+	    if (!initstate (l, randbuf, (size_t) i))
 	      BPRS_FATAL ("initstate %s failed", optarg);
+	     l= random();
+	    if (bprs_verbose)
+	      printf("%s initialized random with %s first random %ld\n",
+		     _bprs_argv[0], optarg, l);
 	  }
 	};
       if (optix > argc)
