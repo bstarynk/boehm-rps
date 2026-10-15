@@ -216,8 +216,8 @@ static unsigned _bprs_objhash_cnt;
 static pthread_mutex_t _brps_objhash_mtx
   = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-static void _bprs_objhash_register (Bprs_Object * pob);
-static void _bprs_objhash_forget (Bprs_Object * pob);
+static void _bprs_objhash_register (Bprs_Object *pob);
+static void _bprs_objhash_forget (Bprs_Object *pob);
 
 static void
 _bprs_objhash_reserve (unsigned xtra)

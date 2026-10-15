@@ -33,7 +33,7 @@
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
 #endif
-extern void bprs_load_file (const char *name, FILE * fil);
+extern void bprs_load_file (const char *name, FILE *fil);
 #define BPRS_MAGIC_STRING "Boehm-Rps-Store"
 
 typedef enum bprs_kind_en Bprs_Kind;
@@ -93,8 +93,8 @@ extern uint32_t bprs_hash_c_string (const char *s);
 /// the pok pointer may be null and is set to true on success
 extern const char *bprs_shortgit_util (void);
 extern Bprs_Int *bprs_make_int (int64_t i);
-extern int64_t bprs_get_int (const Bprs_Int * p, bool *pok);
-extern uint32_t bprs_hash_int (const Bprs_Int * p, bool *pok);
+extern int64_t bprs_get_int (const Bprs_Int *p, bool *pok);
+extern uint32_t bprs_hash_int (const Bprs_Int *p, bool *pok);
 extern Bprs_Double *bprs_make_double (double d);
 extern double bprs_get_double (const Bprs_Double * p, bool *pok);
 extern uint32_t bprs_hash_double (const Bprs_Double * p, bool *pok);
@@ -111,9 +111,9 @@ extern Bprs_Tuple *bprs_tuple_make_args (unsigned siz, ...);
 extern uint32_t bprs_hash_tuple (const Bprs_Tuple * tup, bool *pok);
 extern unsigned bprs_tuple_length (const Bprs_Tuple * rup);
 extern const void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
-extern uint32_t bprs_hash_object (const Bprs_Object * pob, bool *pok);
+extern uint32_t bprs_hash_object (const Bprs_Object *pob, bool *pok);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
-extern Bprs_Object *bprs_object_load (FILE * fil, uint32_t hi, uint64_t lo);
+extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
 
