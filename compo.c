@@ -459,7 +459,33 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
     {
       idhi = (uint32_t) random ();
       idlo = (uint64_t) random ();
+      pob = bprs_object_find (idhi, idlo);
+      if (pob)
+	idhi = (uint32_t) random ();
+      else
+	break;
     };
+  uint32_t h = bprs_hash_for_object_hi_lo (idhi, idlo);
+  pthread_mutex_lock (&_brps_objhash_mtx);
+  pob = GC_MALLOC (sizeof (Bprs_Object));
+  memset (pob, 0, sizeof (Bprs_Object));
+  pob->ob_gap = (intptr_t) pob & BPRS_MASK_OBJECT;
+  pob->ob_kind = BprsKind_Object;
+  pob->ob_index = 0;
+  pob->ob_hash = h;
+  pob->ob_nbcomp = 0;
+  pob->ob_nbattr = 0;
+  pob->ob_sizcomp = 0;
+  pob->ob_sizattr = 0;
+  pob->ob_hi = idhi;
+  pob->ob_lo = idlo;
+  pthread_mutex_init (&pob->ob_mtx, NULL);
+  pob->ob_attrs = NULL;
+  pob->ob_comps = NULL;
+  _bprs_objhash_register (pob);
+  goto end;
+ end:
+  pthread_mutex_unlock (&_brps_objhash_mtx);
 #warning unimplemented bprs_object_make
   BPRS_FATAL ("unimplemented bprs_object_make idhi=%ud idlo=%lud",
 	      idhi, idlo);
