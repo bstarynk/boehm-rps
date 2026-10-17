@@ -364,6 +364,42 @@ _bprs_objhash_forget (Bprs_Object *pob)
 }				/* end _bprs_objhash_forget */
 
 
+int
+bprs_object_cmp (const void *left, const void *right)
+{
+  const Bprs_Object *pobleft = NULL;
+  const Bprs_Object *pobright = NULL;
+  if ((uintptr_t) 0 == ((uintptr_t) left & 0xf))
+    pobleft = NULL;
+  if ((uintptr_t) 0 == ((uintptr_t) right & 0xf))
+    pobright = NULL;
+  if (!pobleft && !pobright)
+    return -2;
+  if (pobleft == pobright)
+    return 0;
+  if (!pobleft)
+    return -1;
+  if (!pobright)
+    return +1;
+  if (pobleft->ob_kind != BprsKind_Object)
+    return -1;
+  if (pobright->ob_kind != BprsKind_Object)
+    return +1;
+  if (pobleft->ob_hi < pobright->ob_hi)
+    return -1;
+  if (pobleft->ob_hi > pobright->ob_hi)
+    return +1;
+  if (pobleft->ob_lo < pobright->ob_lo)
+    return -1;
+  if (pobleft->ob_lo > pobright->ob_lo)
+    return +1;
+#warning need code review (bprs_object_cmp)
+  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p",
+	      left, right);
+  return -2;
+} /* end bprs_object_cmp */
+
+
 
 Bprs_Object *
 bprs_object_find (uint32_t idhi, uint64_t idlo)
@@ -511,7 +547,26 @@ end:
 Bprs_Set *
 bprs_set_make_arr (const void **arr, unsigned siz)
 {
+  const unsigned small_len = 64;
   Bprs_Set *rset = NULL;
+  if (!arr || (((uintptr_t) arr) & ~0xff) == 0)
+    siz = 0;
+  if (!siz)
+    return (Bprs_Set *) NULL;
+  if (siz < small_len)
+    {
+      unsigned smallcnt = 0;
+      Bprs_Object *smallarr[siz + 1];
+      memset ((void *) smallarr, 0, siz * sizeof (void *));
+      for (unsigned ix = 0; ix < siz; ix++)
+	{
+	  const void *curptr = arr[ix];
+	  if (bprs_value_kind (curptr) != BprsKind_Object)
+	    continue;
+	  smallarr[smallcnt++] = (Bprs_Object *) curptr;
+	};
+      qsort (smallarr, smallcnt, sizeof (Bprs_Object *), bprs_object_cmp);
+    };
 #warning unimplemented bprs_set_make_arr
   BPRS_FATAL ("unimplemented bprs_set_make_arr siz=%ud", siz);
   return rset;
@@ -530,9 +585,17 @@ uint32_t
 bprs_hash_set (const Bprs_Set *pset, bool *pok)
 {
   uint32_t h = 0;
+  if (!pset || ((uintptr_t) pset & 0xf))
+    goto bad;
+  if (pset->set_kind != BprsKind_Set)
+    goto bad;
 #warning unimplemented bprs_set_make_args
   BPRS_FATAL ("unimplemented bprs_hash_set pset@%p", pset);
   return h;
+bad:
+  if (pok)
+    *pok = false;
+  return 0;
 }				/* end bprs_hash_set */
 
 bool
