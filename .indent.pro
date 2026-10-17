@@ -7,3 +7,9 @@
 -T Bprs_Object
 -T bprs_finalizer_sig_t
 -T gitfun_sig_t
+-T int32_t
+-T uint32_t
+-T int64_t
+-T uint64_t
+-T inptr_t
+-T uintptr_t
