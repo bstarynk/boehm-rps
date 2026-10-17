@@ -232,21 +232,21 @@ static void _bprs_objhash_forget (Bprs_Object *pob);
 //        Bprs_Object **oldarr = _bprs_objhash_arr;
 //        unsigned newsiz = ((3 * oldcnt / 2 + 9 * xtra / 8 + 50) & 0xff) + 1;
 //        Bprs_Object **newarr
-//  	= GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
+//      = GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
 //        memset ((void *) newarr, 0, newsiz * sizeof (Bprs_Object *));
 //        _bprs_objhash_arr = newarr;
 //        _bprs_objhash_siz = newsiz;
 //        _bprs_objhash_cnt = 0;
 //        for (unsigned ix = 0; ix < oldsiz; ix++)
-//  	{
-//  	  Bprs_Object *oldobj = oldarr[ix];
-//  	  if (oldobj && oldobj != BPRS_OBJHASH_EMPTY)
-//  	    _bprs_objhash_register (oldobj);
-//  	  assert (_bprs_objhash_cnt == oldcnt);
-//  	}
+//      {
+//        Bprs_Object *oldobj = oldarr[ix];
+//        if (oldobj && oldobj != BPRS_OBJHASH_EMPTY)
+//          _bprs_objhash_register (oldobj);
+//        assert (_bprs_objhash_cnt == oldcnt);
+//      }
 //      }
 //    pthread_mutex_unlock (&_brps_objhash_mtx);
-//  }    				/* end brps_objhash_reserve */
+//  }                                   /* end brps_objhash_reserve */
 
 uint32_t
 bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo)
@@ -486,7 +486,7 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
   pob->ob_comps = NULL;
   _bprs_objhash_register (pob);
   goto end;
- end:
+end:
   pthread_mutex_unlock (&_brps_objhash_mtx);
 #warning unimplemented bprs_object_make
   BPRS_FATAL ("unimplemented bprs_object_make idhi=%ud idlo=%lud",
