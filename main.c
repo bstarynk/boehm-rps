@@ -234,6 +234,10 @@ bprs_value_kind (const void *p)
       if (bprs_hash_tuple ((Bprs_Tuple *) p, &ok) != 0 && ok)
 	return BprsKind_Tuple;
       break;
+    case BprsKind_Set:
+      if (bprs_hash_set ((Bprs_Set *) p, &ok) != 0 && ok)
+	return BprsKind_Set;
+      break;
     default:
       break;
     }
@@ -263,6 +267,9 @@ bprs_value_hash (const void *p)
       break;
     case BprsKind_Object:
       h = bprs_hash_object ((Bprs_Object *) p, &ok);
+      break;
+    case BprsKind_Set:
+      h = bprs_hash_set ((Bprs_Set *) p, &ok);
       break;
     default:
       return 0;

@@ -51,6 +51,7 @@ typedef struct bprs_int_st Bprs_Int;
 typedef struct bprs_double_st Bprs_Double;
 typedef struct bprs_string_st Bprs_String;
 typedef struct bprs_tuple_st Bprs_Tuple;
+typedef struct bprs_set_st Bprs_Set;
 typedef struct bprs_object_st Bprs_Object;
 extern bool bprs_verbose;
 
@@ -116,6 +117,13 @@ extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
+
+extern Bprs_Set *bprs_set_make_arr (const void **arr, unsigned siz);
+extern Bprs_Set *bprs_set_make_args (unsigned siz, ...);
+extern uint32_t bprs_hash_set (const Bprs_Set * pset, bool *pok);
+extern bool bprs_set_contains (const Bprs_Set * pset,
+			       const Bprs_Object *pobelem);
+extern unsigned bprs_set_cardinal (const Bprs_Set * pset, bool *pok);
 
 
 //// in load.c

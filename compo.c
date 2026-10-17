@@ -183,6 +183,19 @@ bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok)
   return tup->tu_hash;
 }				/* end bprs_hash_tuple */
 
+#define BPRS_SET_MAGIC 80044785	/* 0x4c562f1 */
+#define BPRS_MASK_SET 0xfdfe
+struct bprs_set_st
+{
+  Bprs_Kind set_kind;
+  int16_t set_gap;
+  int32_t set_magic;
+  uint32_t set_hash;
+  uint32_t set_size;
+  const Bprs_Object *set_elem[];
+};
+
+
 struct bprs_attrpair_st
 {
   Bprs_Object *at_obj;
@@ -493,5 +506,51 @@ end:
 	      idhi, idlo);
   return pob;
 }				/* end bprs_object_make */
+
+
+Bprs_Set *
+bprs_set_make_arr (const void **arr, unsigned siz)
+{
+  Bprs_Set *rset = NULL;
+#warning unimplemented bprs_set_make_arr
+  BPRS_FATAL ("unimplemented bprs_set_make_arr siz=%ud", siz);
+  return rset;
+}				/* end bprs_set_make_arr */
+
+Bprs_Set *
+bprs_set_make_args (unsigned siz, ...)
+{
+  Bprs_Set *rset = NULL;
+#warning unimplemented bprs_set_make_args
+  BPRS_FATAL ("unimplemented bprs_set_make_args siz=%ud", siz);
+  return rset;
+}				/* end bprs_set_make_args */
+
+uint32_t
+bprs_hash_set (const Bprs_Set *pset, bool *pok)
+{
+  uint32_t h = 0;
+#warning unimplemented bprs_set_make_args
+  BPRS_FATAL ("unimplemented bprs_hash_set pset@%p", pset);
+  return h;
+}				/* end bprs_hash_set */
+
+bool
+bprs_set_contains (const Bprs_Set *pset, const Bprs_Object *pobelem)
+{
+  bool res = false;
+#warning unimplemented bprs_set_contains
+  BPRS_FATAL ("unimplemented bprs_set_contains pset@%p", pset);
+  return res;
+}				/* end bprs_set_contains */
+
+unsigned
+bprs_set_cardinal (const Bprs_Set *pset, bool *pok)
+{
+  unsigned res = 0;
+#warning unimplemented bprs_set_contains
+  BPRS_FATAL ("unimplemented bprs_set_contains pset@%p", pset);
+  return res;
+}				/* end bprs_set_cardinal */
 
 /* end boehm-rps/compo.c */
