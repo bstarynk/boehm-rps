@@ -36,7 +36,6 @@
 extern void bprs_load_file (const char *name, FILE *fil);
 #define BPRS_MAGIC_STRING "Boehm-Rps-Store"
 
-typedef enum bprs_kind_en Bprs_Kind;
 enum bprs_kind_en
 {
   BprsKind__None,
@@ -45,8 +44,10 @@ enum bprs_kind_en
   BprsKind_Double,
   BprsKind_Tuple,		/* constant immutable tuple of values */
   BprsKind_Set,			/* constant ordered set of objects */
-  BprsKind_Object		/* mutable object */
+  BprsKind_Object,		/* mutable object */
+  BprsKind__Last
 };
+typedef enum bprs_kind_en Bprs_Kind;
 typedef struct bprs_int_st Bprs_Int;
 typedef struct bprs_double_st Bprs_Double;
 typedef struct bprs_string_st Bprs_String;
