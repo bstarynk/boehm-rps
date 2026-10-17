@@ -97,8 +97,8 @@ extern Bprs_Int *bprs_make_int (int64_t i);
 extern int64_t bprs_get_int (const Bprs_Int *p, bool *pok);
 extern uint32_t bprs_hash_int (const Bprs_Int *p, bool *pok);
 extern Bprs_Double *bprs_make_double (double d);
-extern double bprs_get_double (const Bprs_Double * p, bool *pok);
-extern uint32_t bprs_hash_double (const Bprs_Double * p, bool *pok);
+extern double bprs_get_double (const Bprs_Double *p, bool *pok);
+extern uint32_t bprs_hash_double (const Bprs_Double *p, bool *pok);
 extern Bprs_String *bprs_make_string (const char *);
 extern const char *bprs_get_string (const Bprs_String * p, bool *pok);
 extern uint32_t bprs_hash_string (const Bprs_String * p, bool *pok);
@@ -120,10 +120,10 @@ extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
 
 extern Bprs_Set *bprs_set_make_arr (const void **arr, unsigned siz);
 extern Bprs_Set *bprs_set_make_args (unsigned siz, ...);
-extern uint32_t bprs_hash_set (const Bprs_Set * pset, bool *pok);
-extern bool bprs_set_contains (const Bprs_Set * pset,
+extern uint32_t bprs_hash_set (const Bprs_Set *pset, bool *pok);
+extern bool bprs_set_contains (const Bprs_Set *pset,
 			       const Bprs_Object *pobelem);
-extern unsigned bprs_set_cardinal (const Bprs_Set * pset, bool *pok);
+extern unsigned bprs_set_cardinal (const Bprs_Set *pset, bool *pok);
 
 
 //// in load.c
