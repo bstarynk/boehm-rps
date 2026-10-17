@@ -41,10 +41,46 @@ bprs_load_file (const char *name, FILE *fil)
 		name, linecnt, BPRS_MAGIC_STRING);
   do
     {
+      uint32_t hi = 0;
+      uint64_t lo = 0;
+      Bprs_Object *pobj = NULL;
+      int pos = 0;
+      const char *pc = 0;
       memset (linebuf, 0, linsiz);
       readsiz = getline (&linebuf, &linsiz, fil);
+      pc = linebuf;
+      if (sscanf (pc, " @obj hi %d lo %ld %n",
+		  &hi, &lo, &pos) >= 2 && pos > 0)
+	{
+	  uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
+	  uint32_t hread = 0;
+	  int posbis = 0;
+	  if (hx == 0)
+	    BPRS_FATAL ("in %s:%d invalid hi=%d lo=%ld [%s:%d]",
+			name, linecnt, hi, lo, __FILE__, __LINE__);
+	  pc += pos;
+	  if (sscanf (pc, " hash %d %n", &hread, &posbis) > 0 && posbis > 0)
+	    {
+	      if (hread != hx)
+		BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			    "bad hash %d (expecting %d)",
+			    name, linecnt, hi, lo, hread, hx);
+	      pc += posbis;
+	    }
+	}
+      pobj = bprs_object_find (hi, lo);
+      if (!pobj)
+	{
+	  bool ok = false;
+	  pobj = bprs_object_load (fil, hi, lo);
+	  if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
+	    BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			"bad hash %d",
+			name, linecnt, hi, lo, bprs_hash_object (pobj, NULL));
+	}
 #warning bprs_load_file incomplete
-      BPRS_FATAL ("incomplete bpr_load_file (%s:%d)", __FILE__, __LINE__);
+      BPRS_FATAL ("incomplete bpr_load_file [%s:%d] at loaded file %s:%d",
+		  __FILE__, __LINE__, name, linecnt);
     }
   while (readsiz > 0 && !feof (fil));
 }				/* end bprs_load_file */
