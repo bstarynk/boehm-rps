@@ -29,6 +29,7 @@
 #include <limits.h>
 #include <getopt.h>
 #include <pthread.h>
+#include <errno.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
