@@ -126,14 +126,15 @@ _bprs_process_progargs (int argc, char **argv)
 		char buf[48];
 		uint32_t hi = 0;
 		uint64_t lo = 0;
-		memset(buf, 0, sizeof(buf));
+		memset (buf, 0, sizeof (buf));
 		Bprs_Object *pob =
 		  bprs_object_make ( /*compsize: */ 5 + (ix & 0xf),
 				    /*attrsize */ (7 + (ix & 7)));
-		if (bprs_extract_object_id (pob, &hi, &lo)) {
-		  bprs_object_to_str(pob, buf, sizeof(buf)-1);
-		  printf ("object %s hi=%d lo=%ld\n", buf, hi, lo);
-		}
+		if (bprs_extract_object_id (pob, &hi, &lo))
+		  {
+		    bprs_object_to_str (pob, buf, sizeof (buf) - 1);
+		    printf ("object %s hi=%d lo=%ld\n", buf, hi, lo);
+		  }
 	      }
 	    continue;
 	  }
@@ -226,6 +227,7 @@ main (int argc, char **argv)
   getcwd (_bprs_cwdbuf, sizeof (_bprs_cwdbuf) - 1);
   syslog (LOG_INFO, "starting %s git %s in %s (srcdir %s)",
 	  _bprs_argv[0], bprs_shortgit, _bprs_cwdbuf, bprs_sourcedir);
+  bprs_initialize_objects ();
   _bprs_process_progargs (argc, argv);
 }				/* end main */
 

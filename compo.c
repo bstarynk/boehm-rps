@@ -276,6 +276,19 @@ bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo)
   return h;
 }
 
+void
+bprs_initialize_objects (void)
+{
+  static bool inited;
+  if (inited)
+    BPRS_FATAL ("bprs_initialize_objects has been called");
+  const unsigned newsiz = 11;
+  _bprs_objhash_arr = GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
+  memset (_bprs_objhash_arr, 0, newsiz * sizeof (Bprs_Object *));
+  _bprs_objhash_siz = newsiz;
+  inited = true;
+}				/* end bprs_initialize_objects */
+
 static void
 _bprs_objhash_register (Bprs_Object *pob)
 {
@@ -406,6 +419,8 @@ bprs_object_find (uint32_t idhi, uint64_t idlo)
   Bprs_Object *res = NULL;
   pthread_mutex_lock (&_brps_objhash_mtx);
   if (idhi == 0 || idlo == 0)
+    goto end;
+  if (_bprs_objhash_siz == 0)
     goto end;
   uint32_t h = bprs_hash_for_object_hi_lo (idhi, idlo);
   if (h == 0)
