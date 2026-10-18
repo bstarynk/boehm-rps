@@ -462,6 +462,58 @@ bprs_hash_object (const Bprs_Object *pob, bool *pok)
   return pob->ob_hash;
 }				/* end bprs_hash_object */
 
+
+bool
+bprs_extract_object_id (const Bprs_Object *pob, uint32_t *phi, uint64_t *plo)
+{
+  if (!pob || (uintptr_t) pob < 0x1000
+      || pob->ob_kind != BprsKind_Object
+      || pob->ob_magic != BPRS_OBJECT_MAGIC
+      || pob->ob_gap != ((intptr_t) pob & BPRS_MASK_OBJECT))
+    {
+      if (phi)
+	*phi = 0;
+      if (plo)
+	*plo = 0;
+      return false;
+    }
+  if (phi)
+    *phi = pob->ob_hi;
+  if (plo)
+    *plo = pob->ob_lo;
+  return true;
+}				/* end bprs_extract_object_id */
+
+
+bool
+bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
+{
+  uint32_t hi = 0;
+  uint64_t lo = 0;
+  int n = 0;
+  char bufhi[20];
+  char buflo[40];
+  if (!bprs_extract_object_id (pob, &hi, &lo))
+    {
+      if (buf && bufsiz > 0)
+	buf[0] = (char) 0;
+      return false;
+    };
+  assert (hi > 0);
+  assert (lo > 0);
+  memset (bufhi, 0, sizeof (bufhi));
+  memset (buflo, 0, sizeof (buflo));
+  if (bprs_ulong_to_b36 (hi, bufhi, sizeof (bufhi) - 1)
+      && bprs_ulong_to_b36 (lo, buflo, sizeof (buflo) - 1)
+      && strlen (bufhi) + strlen (buflo) + 3 < bufsiz
+      && (n = snprintf (buf, bufsiz, "_%s_%s", bufhi, buflo)) > 0
+      && n < bufsiz)
+    {
+      return true;
+    };
+  return false;
+}				/* end bprs_object_to_str */
+
 Bprs_Object *
 bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
 {
