@@ -216,7 +216,7 @@ struct bprs_object_st
   uint32_t ob_hi;
   uint64_t ob_lo;
   pthread_mutex_t ob_mtx;
-  struct bprs_attrarr_st *ob_attrs;
+  struct bprs_attrpair_st *ob_attrs;
   void **ob_comps;
 };
 
@@ -525,20 +525,21 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
   pob->ob_hash = h;
   pob->ob_nbcomp = 0;
   pob->ob_nbattr = 0;
-  pob->ob_sizcomp = 0;
-  pob->ob_sizattr = 0;
+  pob->ob_sizcomp = compsize;
+  pob->ob_sizattr = attrsize;
   pob->ob_hi = idhi;
   pob->ob_lo = idlo;
   pthread_mutex_init (&pob->ob_mtx, NULL);
-  pob->ob_attrs = NULL;
-  pob->ob_comps = NULL;
+  pob->ob_attrs =
+    GC_MALLOC ((attrsize + 1) * sizeof (struct bprs_attrpair_st));
+  memset (pob->ob_attrs, 0,
+	  (attrsize + 1) * sizeof (struct bprs_attrpair_st));
+  pob->ob_comps = GC_MALLOC ((compsize + 1) * sizeof (void *));
+  memset (pob->ob_comps, 0, (compsize + 1) * sizeof (void *));
   _bprs_objhash_register (pob);
   goto end;
 end:
   pthread_mutex_unlock (&_brps_objhash_mtx);
-#warning unimplemented bprs_object_make
-  BPRS_FATAL ("unimplemented bprs_object_make idhi=%ud idlo=%lud",
-	      idhi, idlo);
   return pob;
 }				/* end bprs_object_make */
 
