@@ -205,7 +205,7 @@ struct bprs_attrpair_st
 struct bprs_object_st
 {
   Bprs_Kind ob_kind;
-  int16_t ob_gap;
+  uint16_t ob_gap;
   uint32_t ob_magic;
   uint32_t ob_index;		/* index in _bprs_objhash_arr */
   uint32_t ob_hash;
@@ -465,7 +465,7 @@ bprs_hash_object (const Bprs_Object *pob, bool *pok)
   if (!pob || (uintptr_t) pob < 0x1000
       || pob->ob_kind != BprsKind_Object
       || pob->ob_magic != BPRS_OBJECT_MAGIC
-      || pob->ob_gap != ((intptr_t) pob & BPRS_MASK_OBJECT))
+      || pob->ob_gap != ((uintptr_t) pob & BPRS_MASK_OBJECT))
     {
       if (pok)
 	*pok = false;
@@ -506,7 +506,7 @@ bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
   uint32_t hi = 0;
   uint64_t lo = 0;
   int n = 0;
-  char bufhi[20];
+  char bufhi[24];
   char buflo[40];
   if (!bprs_extract_object_id (pob, &hi, &lo))
     {
@@ -542,6 +542,7 @@ bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
       memset (pob, 0, sizeof (Bprs_Object));
       pob->ob_gap = (intptr_t) pob & BPRS_MASK_OBJECT;
       pob->ob_kind = BprsKind_Object;
+      pob->ob_magic = BPRS_OBJECT_MAGIC;
       pob->ob_index = 0;
       pob->ob_hash = h;
       pob->ob_nbcomp = 0;
@@ -586,8 +587,9 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
   pthread_mutex_lock (&_brps_objhash_mtx);
   pob = GC_MALLOC (sizeof (Bprs_Object));
   memset (pob, 0, sizeof (Bprs_Object));
-  pob->ob_gap = (intptr_t) pob & BPRS_MASK_OBJECT;
+  pob->ob_gap = ((uintptr_t) pob) & BPRS_MASK_OBJECT;
   pob->ob_kind = BprsKind_Object;
+  pob->ob_magic = BPRS_OBJECT_MAGIC;
   pob->ob_index = 0;
   pob->ob_hash = h;
   pob->ob_nbcomp = 0;
