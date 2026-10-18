@@ -47,6 +47,10 @@ static const struct option _bprs_options[] = {
    .has_arg = required_argument,
    .flag = NULL,
    .val = 'R'},
+  {.name = (const char *) "show-oids",
+   .has_arg = required_argument,
+   .flag = NULL,
+   .val = 'O'},
   {.name = (const char *) 0,.has_arg = 0,.flag = NULL,.val = 0}
 };
 
@@ -84,6 +88,7 @@ bprs_show_usage (void)
   puts ("\t -L | --load $FILE        # load the given textual $FILE");
   puts ("\t -P | --plugin $PLUGIN    # dlopen given $PLUGIN");
   puts ("\t -R | --random-seed $HEX  # $HEX is an hexadecimal string");
+  puts ("\t -O | --show-oids $NUM    # show $NUM fresh oids");
   puts ("                            # for initstate(3) of random(3)");
 }				/* end of bprs_show_usage */
 
@@ -94,7 +99,7 @@ _bprs_process_progargs (int argc, char **argv)
   int optix = 0;
   for (;;)
     {
-      argcod = getopt_long (argc, argv, "vVHL:P:R:", _bprs_options, &optix);
+      argcod = getopt_long (argc, argv, "vVHL:P:R:O:", _bprs_options, &optix);
       switch (argcod)
 	{
 	case 'v':
@@ -109,6 +114,30 @@ _bprs_process_progargs (int argc, char **argv)
 	case 'H':
 	  bprs_show_usage ();
 	  exit (EXIT_SUCCESS);
+	case 'O':
+	  {
+	    int nb = atoi (optarg);
+	    if (nb <= 0)
+	      nb = 1;
+	    else if (nb > 32)
+	      nb = 32;
+	    for (int ix = 0; ix < nb; ix++)
+	      {
+		char buf[48];
+		uint32_t hi = 0;
+		uint64_t lo = 0;
+		memset(buf, 0, sizeof(buf));
+		Bprs_Object *pob =
+		  bprs_object_make ( /*compsize: */ 5 + (ix & 0xf),
+				    /*attrsize */ (7 + (ix & 7)));
+		if (bprs_extract_object_id (pob, &hi, &lo)) {
+		  bprs_object_to_str(pob, buf, sizeof(buf)-1);
+		  printf ("object %s hi=%d lo=%ld\n", buf, hi, lo);
+		}
+	      }
+	    continue;
+	  }
+	  break;
 	case 'P':
 	  {
 	    void *dlh = dlopen (optarg, RTLD_NOW | RTLD_GLOBAL);
@@ -116,6 +145,34 @@ _bprs_process_progargs (int argc, char **argv)
 	      BPRS_FATAL ("failed to dlopen %s: %s", optarg, dlerror ());
 	    continue;
 	  }
+	case 'L':
+	  {
+	    FILE *loadfil = NULL;
+	    bool ispipe = false;
+	    int clo = 0;
+	    if (optarg[0] == '|' || optarg[0] == '!')
+	      {
+		loadfil = popen (optarg + 1, "r");
+		ispipe = true;
+	      }
+	    else
+	      loadfil = fopen (optarg, "r");
+	    if (!loadfil)
+	      BPRS_FATAL ("failed to fopen %s file %s (%s)",
+			  ispipe ? "command" : "plain", optarg,
+			  strerror (errno));
+	    bprs_load_file (optarg, loadfil);
+	    if (ispipe)
+	      clo = pclose (loadfil);
+	    else
+	      clo = fclose (loadfil);
+	    if (clo)
+	      BPRS_FATAL ("failed to close %s file %s",
+			  ispipe ? "command" : "plain", optarg);
+	    loadfil = NULL;
+	    continue;
+	  }
+	  break;
 	case 'R':
 	  {
 	    const int randsiz = 256;
@@ -148,6 +205,7 @@ _bprs_process_progargs (int argc, char **argv)
 	    if (bprs_verbose)
 	      printf ("%s initialized random with %s first random %ld\n",
 		      _bprs_argv[0], optarg, _bprs_random);
+	    continue;
 	  }
 	};
       if (optix > argc)
