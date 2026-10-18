@@ -126,6 +126,7 @@ extern uint32_t bprs_hash_object (const Bprs_Object *pob, bool *pok);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
+extern bool bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz);
 extern int bprs_object_cmp (const void *pobleft, const void *pobright);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
 
