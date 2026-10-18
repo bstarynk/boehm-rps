@@ -112,9 +112,9 @@ extern uint32_t bprs_hash_string (const Bprs_String * p, bool *pok);
 extern uint32_t bprs_byte_len_string (const Bprs_String * ps, bool *pok);
 extern uint32_t bprs_utf_len_string (const Bprs_String * ps, bool *pok);
 /// conversions string to/from base 36
-extern unsigned long bprs_b36_to_ulong (const char *s, const char **end,
+extern uint64_t bprs_b36_to_uint64 (const char *s, const char **end,
 					bool *pok);
-extern bool bprs_ulong_to_b36 (unsigned long i, char *buf, int bufsiz);
+extern bool bprs_uint64_to_b36 (uint64_t i, char *buf, int bufsiz);
 
 //// in compo.c
 extern const char *bprs_shortgit_compo (void);

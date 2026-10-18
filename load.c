@@ -96,17 +96,17 @@ bprs_load_file (const char *name, FILE *fil)
 	  bool okhi = false, oklo = false;
 	  const char *endleft = NULL;
 	  const char *endright = NULL;
-	  hi = bprs_b36_to_ulong (bufleft, &endleft, &okhi);
+	  hi = (uint32_t) bprs_b36_to_uint64 (bufleft, &endleft, &okhi);
 	  if (!endleft)
 	    okhi = false;
-	  lo = bprs_b36_to_ulong (bufright, &endright, &oklo);
+	  lo = bprs_b36_to_uint64 (bufright, &endright, &oklo);
 	  if (!endright)
 	    oklo = false;
 	  pc += pos;
 	  uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
 	  if (!hx)
-	    BPRS_FATAL ("%s:%d invalid hi=%uld lo=%ud", name, linecnt,
-			hi, lo);
+	    BPRS_FATAL ("%s:%d invalid hi=%lu lo=%lu", name, linecnt,
+			(uint64_t)hi, (uint64_t)lo);
 	  BPRS_FATAL ("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
 		      name, linecnt, bufleft, bufright, __FILE__, __LINE__);
 	}

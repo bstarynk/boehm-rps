@@ -116,11 +116,17 @@ _bprs_process_progargs (int argc, char **argv)
 	  exit (EXIT_SUCCESS);
 	case 'O':
 	  {
+	    char bu[40];
 	    int nb = atoi (optarg);
 	    if (nb <= 0)
 	      nb = 1;
 	    else if (nb > 32)
 	      nb = 32;
+	    memset(bu, 0, sizeof(bu));
+	    uint64_t k = 36*36*36*36*36*36*36*36*35;
+	    if (bprs_uint64_to_b36(k, bu, sizeof(bu)-1))
+	      printf ("%ld : %s [%s:%d]\n", k, bu, __FILE__, __LINE__);
+	    fflush (NULL);
 	    for (int ix = 0; ix < nb; ix++)
 	      {
 		char buf[48];

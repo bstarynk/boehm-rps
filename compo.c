@@ -506,7 +506,7 @@ bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
   uint32_t hi = 0;
   uint64_t lo = 0;
   int n = 0;
-  char bufhi[24];
+  char bufhi[32];
   char buflo[40];
   if (!bprs_extract_object_id (pob, &hi, &lo))
     {
@@ -518,8 +518,8 @@ bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
   assert (lo > 0);
   memset (bufhi, 0, sizeof (bufhi));
   memset (buflo, 0, sizeof (buflo));
-  if (bprs_ulong_to_b36 (hi, bufhi, sizeof (bufhi) - 1)
-      && bprs_ulong_to_b36 (lo, buflo, sizeof (buflo) - 1)
+  if (bprs_uint64_to_b36 ((uint64_t)hi, bufhi, sizeof (bufhi) - 1)
+      && bprs_uint64_to_b36 ((uint64_t)lo, buflo, sizeof (buflo) - 1)
       && strlen (bufhi) + strlen (buflo) + 3 < bufsiz
       && (n = snprintf (buf, bufsiz, "_%s_%s", bufhi, buflo)) > 0
       && n < bufsiz)

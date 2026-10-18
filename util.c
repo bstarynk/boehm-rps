@@ -59,7 +59,7 @@ bprs_shortgit_util (void)
 
 
 bool
-bprs_ulong_to_b36 (unsigned long i, char *buf, int bufsiz)
+bprs_uint64_to_b36 (uint64_t i, char *buf, int bufsiz)
 {
   char locbuf[48];
   if (!buf)
@@ -90,10 +90,10 @@ bprs_ulong_to_b36 (unsigned long i, char *buf, int bufsiz)
   *w = 0;
   assert (strlen (buf) > 0 && (int) strlen (buf) < bufsiz);
   return true;
-}				/* end bprs_ulong_to_b36 */
+}				/* end bprs_uint64_to_b36 */
 
-unsigned long
-bprs_b36_to_ulong (const char *s, const char **pend, bool *pok)
+uint64_t
+bprs_b36_to_uint64 (const char *s, const char **pend, bool *pok)
 {
   unsigned long res = 0;
   char *end = NULL;
