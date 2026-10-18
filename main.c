@@ -134,9 +134,11 @@ _bprs_process_progargs (int argc, char **argv)
 		  {
 		    bprs_object_to_str (pob, buf, sizeof (buf) - 1);
 		    printf ("object %s hi=%d lo=%ld\n", buf, hi, lo);
+		    fflush (NULL);
 		  }
+		else
+		  BPRS_WARNING("failed to extract id from pob@%p", pob);
 	      }
-	    continue;
 	  }
 	  break;
 	case 'P':
