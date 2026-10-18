@@ -43,11 +43,17 @@ bprs_load_file (const char *name, FILE *fil)
     {
       uint32_t hi = 0;
       uint64_t lo = 0;
+      const int leftlen = 32;
+      const int rightlen = 40;
+      char bufleft[leftlen + 4];
+      char bufright[rightlen + 4];
       Bprs_Object *pobj = NULL;
       int pos = 0;
       const char *pc = 0;
       memset (linebuf, 0, linsiz);
       readsiz = getline (&linebuf, &linsiz, fil);
+      memset (bufleft, 0, sizeof (bufleft));
+      memset (bufright, 0, sizeof (bufright));
       pc = linebuf;
       if (sscanf (pc, " @obj hi %d lo %ld %n",
 		  &hi, &lo, &pos) >= 2 && pos > 0)
@@ -84,6 +90,23 @@ bprs_load_file (const char *name, FILE *fil)
 			    name, linecnt, hi, lo);
 	    }
 	}			/* end @obj */
+      else if (sscanf (pc, " @Ob_%32[0-9A-Z]_%40[0-9A-Z]%n",
+		       bufleft, bufright, &pos) >= 2 && pos > 0)
+	{
+	  bool okhi = false, oklo = false;
+	  const char *endleft = NULL;
+	  const char *endright = NULL;
+	  hi = bprs_b36_to_ulong (bufleft, &endleft, &okhi);
+	  if (!endleft)
+	    okhi = false;
+	  lo = bprs_b36_to_ulong (bufright, &endright, &oklo);
+	  if (!endright)
+	    oklo = false;
+	  pc += pos;
+	  BPRS_FATAL("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
+		     name, linecnt, bufleft, bufright,
+		     __FILE__, __LINE__);
+	}
 #warning bprs_load_file incomplete
       BPRS_FATAL ("incomplete bpr_load_file [%s:%d] at loaded file %s:%d",
 		  __FILE__, __LINE__, name, linecnt);
