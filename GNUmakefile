@@ -5,7 +5,8 @@
 ##                    <basile@starynkevitch.net>
 CC = gcc
 INDENT ?= indent
-CFLAGS += -Wall -Wextra -Wmissing-prototypes -std=gnu17 -O -g
+OPTIM ?= -O1
+CFLAGS += -Wall -Wextra -Wmissing-prototypes -std=gnu17 $(OPTIM) -g
 CFLAGS += $(shell pkg-config --cflags bdw-gc)
 LDFLAGS += $(shell pkg-config --libs bdw-gc) 
 HUMAN_HEADER= boehmrps.h
