@@ -103,9 +103,12 @@ bprs_load_file (const char *name, FILE *fil)
 	  if (!endright)
 	    oklo = false;
 	  pc += pos;
-	  BPRS_FATAL("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
-		     name, linecnt, bufleft, bufright,
-		     __FILE__, __LINE__);
+	  uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
+	  if (!hx)
+	    BPRS_FATAL ("%s:%d invalid hi=%uld lo=%ud", name, linecnt,
+			hi, lo);
+	  BPRS_FATAL ("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
+		      name, linecnt, bufleft, bufright, __FILE__, __LINE__);
 	}
 #warning bprs_load_file incomplete
       BPRS_FATAL ("incomplete bpr_load_file [%s:%d] at loaded file %s:%d",
