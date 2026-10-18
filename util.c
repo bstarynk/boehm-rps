@@ -79,7 +79,7 @@ bprs_ulong_to_b36 (unsigned long i, char *buf, int bufsiz)
     {
       unsigned c = n % 36;
       n = n / 36;
-      *p = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[c];
+      *p = _bprs_b36_digits[c];
       p++;
     };
   char *w = buf;
