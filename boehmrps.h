@@ -55,6 +55,10 @@ typedef struct bprs_string_st Bprs_String;
 typedef struct bprs_tuple_st Bprs_Tuple;
 typedef struct bprs_set_st Bprs_Set;
 typedef struct bprs_object_st Bprs_Object;
+
+extern bool bprs_extract_object_id (const Bprs_Object *pob,
+				    uint32_t *phi, uint64_t *plo);
+
 extern bool bprs_verbose;
 
 //// common macros
