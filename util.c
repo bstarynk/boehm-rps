@@ -16,6 +16,7 @@
 static const char _bprs_util_shortgit[] = BPRS_SHORTGIT;
 
 
+static const char _bprs_b36_digits[] = "0123456789ABCDEFGHIJKLMNOPQRTSUVWXYZ";
 #define BPRS_INT_MAGIC 68140917	/* 0x40fbf75 */
 #define BPRS_MASK_INT 0x7fef
 struct bprs_int_st
@@ -57,6 +58,64 @@ bprs_shortgit_util (void)
 }				/* end bprs_shortgit_util */
 
 
+bool
+bprs_ulong_to_b36 (unsigned long i, char *buf, int bufsiz)
+{
+  char locbuf[48];
+  if (!buf)
+    return false;
+  if (i == 0)
+    {
+      if (bufsiz <= 2)
+	return false;;
+      buf[0] = '0';
+      buf[1] = (char) 0;
+      return true;
+    };
+  memset (locbuf, 0, sizeof (locbuf));
+  char *p = locbuf;
+  uint64_t n = i;
+  while (n != 0)
+    {
+      unsigned c = n % 36;
+      n = n / 36;
+      *p = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[c];
+      p++;
+    };
+  char *w = buf;
+  if (p - locbuf + 1 > bufsiz)
+    return false;
+  for (char *b = p - 1; b >= locbuf; b--)
+    *(w++) = *b;
+  *w = 0;
+  assert (strlen (buf) > 0 && (int) strlen (buf) < bufsiz);
+  return true;
+}				/* end bprs_ulong_to_b36 */
+
+unsigned long
+bprs_b36_to_ulong (const char *s, const char **pend, bool *pok)
+{
+  unsigned long res = 0;
+  char *end = NULL;
+  if (!s)
+    goto fail;
+  res = strtoul (s, &end, 36);
+  if (end && end > s)
+    {
+      if (pend)
+	*pend = end;
+      if (pok)
+	*pok = true;
+      return res;
+    };
+fail:
+  if (pok)
+    *pok = false;
+  if (pend)
+    *pend = s;
+  return 0;
+}				/* end bprs_b36_to_ulong */
+
 Bprs_Int *
 bprs_make_int (int64_t i)
 {
@@ -67,6 +126,11 @@ bprs_make_int (int64_t i)
   p->i_val = i;
   return p;
 }				/* end bprs_make_int */
+
+
+
+
+
 
 int64_t
 bprs_get_int (const Bprs_Int *p, bool *pok)

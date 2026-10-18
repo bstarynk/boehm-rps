@@ -105,6 +105,10 @@ extern const char *bprs_get_string (const Bprs_String * p, bool *pok);
 extern uint32_t bprs_hash_string (const Bprs_String * p, bool *pok);
 extern uint32_t bprs_byte_len_string (const Bprs_String * ps, bool *pok);
 extern uint32_t bprs_utf_len_string (const Bprs_String * ps, bool *pok);
+/// conversions string to/from base 36
+extern unsigned long bprs_b36_to_ulong (const char *s, const char **end,
+					bool *pok);
+extern bool bprs_ulong_to_b36 (unsigned long i, char *buf, int bufsiz);
 
 //// in compo.c
 extern const char *bprs_shortgit_compo (void);
@@ -117,7 +121,7 @@ extern uint32_t bprs_hash_object (const Bprs_Object *pob, bool *pok);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
-extern int bprs_object_cmp(const void*pobleft, const void *pobright);
+extern int bprs_object_cmp (const void *pobleft, const void *pobright);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
 
 extern Bprs_Set *bprs_set_make_arr (const void **arr, unsigned siz);
