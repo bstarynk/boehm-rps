@@ -29,11 +29,16 @@ obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 boehm-rps: $(HUMAN_OBJ_FILES) obj/_list_.o | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -ULINKBOEHMRPS $(CFLAGS)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
+	/bin/mv -vf _list_.c _list_.c~
+
 _list_.c: GNUmakefile
 	printf "const char bprs_shortgit[] = \"%s\";\n" \
             $(shell ./get-short-git.sh .) > $@
 	printf "const char bprs_sourcedir[] = \"%s\";\n" $(shell realpath $$PWD) >> $@
 	printf "const char* bprs_human_files[]= {\n" >> $@
 	for f in $(HUMAN_C_FILES); do printf "  \"%s\",\n" $$f; done >> $@
+	echo "  (const char*)0 };\n" >> $@
+	printf "const char* bprs_human_md5[]= {\n" >> $@
+	for f in $(HUMAN_C_FILES); do printf "  \"%s\", // %s\n" $$(md5sum $$f </dev/null); done >> $@
 	echo "  (const char*)0 };\n" >> $@
 
