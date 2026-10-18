@@ -67,17 +67,23 @@ bprs_load_file (const char *name, FILE *fil)
 			    name, linecnt, hi, lo, hread, hx);
 	      pc += posbis;
 	    }
-	}
-      pobj = bprs_object_find (hi, lo);
-      if (!pobj)
-	{
-	  bool ok = false;
-	  pobj = bprs_object_load (fil, hi, lo);
-	  if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
-	    BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
-			"bad hash %d",
-			name, linecnt, hi, lo, bprs_hash_object (pobj, NULL));
-	}
+	  pobj = bprs_object_find (hi, lo);
+	  if (!pobj)
+	    {
+	      bool ok = false;
+	      pobj = bprs_object_load (fil, hi, lo);
+	      if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
+		BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			    "bad hash %d",
+			    name, linecnt, hi, lo, bprs_hash_object (pobj,
+								     NULL));
+	    }
+	  else
+	    {
+	      BPRS_WARNING ("in %s:%d already existing object hi=%d lo=%ld",
+			    name, linecnt, hi, lo);
+	    }
+	}			/* end @obj */
 #warning bprs_load_file incomplete
       BPRS_FATAL ("incomplete bpr_load_file [%s:%d] at loaded file %s:%d",
 		  __FILE__, __LINE__, name, linecnt);
