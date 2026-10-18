@@ -394,10 +394,9 @@ bprs_object_cmp (const void *left, const void *right)
   if (pobleft->ob_lo > pobright->ob_lo)
     return +1;
 #warning need code review (bprs_object_cmp)
-  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p",
-	      left, right);
+  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p", left, right);
   return -2;
-} /* end bprs_object_cmp */
+}				/* end bprs_object_cmp */
 
 
 
