@@ -57,38 +57,31 @@ bprs_shortgit_util (void)
   return _bprs_util_shortgit;
 }				/* end bprs_shortgit_util */
 
-
+/// contributed by Bernard Schoenacker
 bool
-bprs_uint64_to_b36 (uint64_t i, char *buf, int bufsiz)
+bprs_uint64_to_b36 (uint64_t val, char *out, int bufsiz)
 {
-  char locbuf[48];
-  if (!buf)
+  static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  char tmp[16];
+  size_t n = 0;
+
+  if (out == NULL)
     return false;
-  if (i == 0)
+
+  do
     {
-      if (bufsiz <= 2)
-	return false;;
-      buf[0] = '0';
-      buf[1] = (char) 0;
-      return true;
-    };
-  memset (locbuf, 0, sizeof (locbuf));
-  char *p = locbuf;
-  uint64_t n = i;
-  while (n != 0)
-    {
-      unsigned c = n % 36;
-      n = n / 36;
-      *p = _bprs_b36_digits[c];
-      p++;
-    };
-  char *w = buf;
-  if (p - locbuf + 1 > bufsiz)
+      tmp[n++] = digits[val % 36];
+      val /= 36;
+    }
+  while (val != 0);
+
+  if (bufsiz < (int) n + 1)
     return false;
-  for (char *b = p - 1; b >= locbuf; b--)
-    *(w++) = *b;
-  *w = 0;
-  assert (strlen (buf) > 0 && (int) strlen (buf) < bufsiz);
+
+  for (int i = 0; i < n; ++i)
+    out[i] = tmp[n - 1 - i];
+
+  out[n] = '\0';
   return true;
 }				/* end bprs_uint64_to_b36 */
 
@@ -114,7 +107,7 @@ fail:
   if (pend)
     *pend = s;
   return 0;
-}				/* end bprs_b36_to_ulong */
+}				/* end bprs_b36_to_uint64_t */
 
 Bprs_Int *
 bprs_make_int (int64_t i)
