@@ -282,7 +282,7 @@ bprs_initialize_objects (void)
   static bool inited;
   if (inited)
     BPRS_FATAL ("bprs_initialize_objects has been called");
-  const unsigned newsiz = 11;
+  const unsigned newsiz = 13;
   _bprs_objhash_arr = GC_MALLOC_ATOMIC (newsiz * sizeof (Bprs_Object *));
   memset (_bprs_objhash_arr, 0, newsiz * sizeof (Bprs_Object *));
   _bprs_objhash_siz = newsiz;
@@ -349,7 +349,7 @@ _bprs_objhash_forget (Bprs_Object *pob)
       unsigned oldsiz = _bprs_objhash_siz;
       unsigned oldcnt = _bprs_objhash_cnt;
       Bprs_Object **oldarr = _bprs_objhash_arr;
-      unsigned newsiz = ((3 * oldcnt / 2 + 50) & 0xff) + 1;
+      unsigned newsiz = ((3 * oldcnt / 2 + 50) & 0xff) + 33;
       if (newsiz < oldsiz)
 	{
 	  Bprs_Object **newarr

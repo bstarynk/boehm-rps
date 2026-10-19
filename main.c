@@ -123,9 +123,14 @@ _bprs_process_progargs (int argc, char **argv)
 	    else if (nb > 32)
 	      nb = 32;
 	    memset(bu, 0, sizeof(bu));
-	    uint64_t k = 36*36*36*36*36*36*36*36*35;
+	    uint64_t k = 36L*36*36L*36*36L*36*36L*36*35;
 	    if (bprs_uint64_to_b36(k, bu, sizeof(bu)-1))
 	      printf ("%ld : %s [%s:%d]\n", k, bu, __FILE__, __LINE__);
+	    uint64_t kb = 36L*36*36*36;
+	    if (bprs_uint64_to_b36(kb, bu, sizeof(bu)-1))
+	      printf ("%ld : %s [%s:%d] /*36^4*/\n", kb, bu,
+		      __FILE__, __LINE__);
+	    assert(strtol(bu, NULL, 36) == kb);
 	    fflush (NULL);
 	    for (int ix = 0; ix < nb; ix++)
 	      {
