@@ -576,7 +576,7 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
   while (idhi < 1024 && idlo < (1L << 20))
     {
       idhi = (uint32_t) random ();
-      idlo = (uint64_t) random ();
+      idlo = (uint64_t) ((uint64_t) (random () << 20)) ^ (random ());
       pob = bprs_object_find (idhi, idlo);
       if (pob)
 	idhi = (uint32_t) random ();

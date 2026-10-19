@@ -130,7 +130,7 @@ _bprs_process_progargs (int argc, char **argv)
 	    if (bprs_uint64_to_b36(kb, bu, sizeof(bu)-1))
 	      printf ("%ld : %s [%s:%d] /*36^4*/\n", kb, bu,
 		      __FILE__, __LINE__);
-	    assert(strtol(bu, NULL, 36) == kb);
+	    assert(strtol(bu, NULL, 36) == (long)kb);
 	    fflush (NULL);
 	    for (int ix = 0; ix < nb; ix++)
 	      {
@@ -193,6 +193,10 @@ _bprs_process_progargs (int argc, char **argv)
 	    char randbuf[randsiz + 16];
 	    int i = 0;
 	    memset (randbuf, 0, sizeof (randbuf));
+	    if (optarg[0] == '_') {
+	      srandom(getpid());
+	    }
+	    else {
 	    for (const char *pc = optarg;
 		 i < randsiz
 		 && pc && pc[0] && isxdigit (pc[0])
@@ -215,6 +219,7 @@ _bprs_process_progargs (int argc, char **argv)
 	    if (!initstate (_bprs_random, randbuf, (size_t) i))
 	      BPRS_FATAL ("initstate %s failed (random %ld)", optarg,
 			  _bprs_random);
+	    };
 	    _bprs_random = random ();
 	    if (bprs_verbose)
 	      printf ("%s initialized random with %s first random %ld\n",
