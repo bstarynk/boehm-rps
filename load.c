@@ -21,6 +21,10 @@ bprs_shortgit_load (void)
   return _bprs_load_shortgit;
 }				/* end bprs_shortgit_load */
 
+
+#warning we could need bprs_load_object_content
+/* we might need a struct packing load data */
+
 void
 bprs_load_file (const char *name, FILE *fil)
 {
@@ -93,7 +97,7 @@ bprs_load_file (const char *name, FILE *fil)
       else if (sscanf (pc, " @Ob_%32[0-9A-Z]_%40[0-9A-Z]%n",
 		       bufleft, bufright, &pos) >= 2 && pos > 0)
 	{
-	  bool okhi = false, oklo = false;
+	  bool okhi = false, oklo = false, ok = false;
 	  const char *endleft = NULL;
 	  const char *endright = NULL;
 	  hi = (uint32_t) bprs_b36_to_uint64 (bufleft, &endleft, &okhi);
@@ -106,7 +110,13 @@ bprs_load_file (const char *name, FILE *fil)
 	  uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
 	  if (!hx)
 	    BPRS_FATAL ("%s:%d invalid hi=%lu lo=%lu", name, linecnt,
-			(uint64_t)hi, (uint64_t)lo);
+			(uint64_t) hi, (uint64_t) lo);
+	  pobj = bprs_object_load (fil, hi, lo);
+	  if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
+	    BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			"bad hash %d",
+			name, linecnt, hi, lo, bprs_hash_object (pobj, NULL));
+
 	  BPRS_FATAL ("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
 		      name, linecnt, bufleft, bufright, __FILE__, __LINE__);
 	}
