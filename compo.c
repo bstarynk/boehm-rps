@@ -759,9 +759,25 @@ unsigned
 bprs_set_cardinal (const Bprs_Set *pset, bool *pok)
 {
   unsigned res = 0;
-#warning unimplemented bprs_set_cardinal
-  BPRS_FATAL ("unimplemented bprs_set_cardinal pset@%p", pset);
+  if (bprs_value_kind(pset) != BprsKind_Set) {
+    if (pok)
+      *pok = false;
+    return 0;
+  };
+  res = pset->set_size;
   return res;
 }				/* end bprs_set_cardinal */
+
+Bprs_Object*
+bprs_set_nth_elem(const Bprs_Set*pset, int n)
+{
+  if (bprs_value_kind(pset) != BprsKind_Set)
+    return NULL;
+  if (n<0)
+    n += pset->set_size;
+  if (n>=0 && n<pset->set_size)
+    return pset->set_elem[n];
+  return NULL;
+} /* end bprs_set_nth_elem */
 
 /* end boehm-rps/compo.c */
