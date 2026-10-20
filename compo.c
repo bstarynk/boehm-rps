@@ -188,8 +188,8 @@ bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok)
 struct bprs_set_st
 {
   Bprs_Kind set_kind;
-  int16_t set_gap;
-  int32_t set_magic;
+  uint16_t set_gap;
+  uint32_t set_magic;
   uint32_t set_hash;
   uint32_t set_size;
   const Bprs_Object *set_elem[];
@@ -218,6 +218,8 @@ struct bprs_object_st
   pthread_mutex_t ob_mtx;
   struct bprs_attrpair_st *ob_attrs;
   void **ob_comps;
+  void *ob_data;
+  void *ob_xtra;
 };
 
 static Bprs_Object **_bprs_objhash_arr;
@@ -518,11 +520,11 @@ bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
   assert (lo > 0);
   memset (bufhi, 0, sizeof (bufhi));
   memset (buflo, 0, sizeof (buflo));
-  if (bprs_uint64_to_b36 ((uint64_t)hi, bufhi, sizeof (bufhi) - 1)
-      && bprs_uint64_to_b36 ((uint64_t)lo, buflo, sizeof (buflo) - 1)
+  if (bprs_uint64_to_b36 ((uint64_t) hi, bufhi, sizeof (bufhi) - 1)
+      && bprs_uint64_to_b36 ((uint64_t) lo, buflo, sizeof (buflo) - 1)
       && strlen (bufhi) + strlen (buflo) + 3 < bufsiz
       && (n = snprintf (buf, bufsiz, "_%s_%s", bufhi, buflo)) > 0
-      && n < bufsiz)
+      && n < (int) bufsiz)
     {
       return true;
     };
@@ -554,6 +556,8 @@ bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
       pthread_mutex_init (&pob->ob_mtx, NULL);
       pob->ob_attrs = NULL;
       pob->ob_comps = NULL;
+      pob->ob_data = NULL;
+      pob->ob_xtra = NULL;
       _bprs_objhash_register (pob);
       goto end;
     end:
@@ -605,6 +609,8 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
 	  (attrsize + 1) * sizeof (struct bprs_attrpair_st));
   pob->ob_comps = GC_MALLOC ((compsize + 1) * sizeof (void *));
   memset (pob->ob_comps, 0, (compsize + 1) * sizeof (void *));
+  pob->ob_data = NULL;
+  pob->ob_xtra = NULL;
   _bprs_objhash_register (pob);
   goto end;
 end:
@@ -614,39 +620,94 @@ end:
 
 
 Bprs_Set *
-bprs_set_make_arr (const void **arr, unsigned siz)
+bprs_set_make_arr (const void **ptr, unsigned siz)
 {
   const unsigned small_len = 64;
   Bprs_Set *rset = NULL;
-  if (!arr || (((uintptr_t) arr) & ~0xff) == 0)
+  Bprs_Object *smallarr[siz + 1];
+  Bprs_Object **obarr = (Bprs_Object **) ptr;
+  Bprs_Object **setarr = NULL;
+  unsigned cnt = 0;
+  uint32_t h = 0;
+  if (!obarr || (((uintptr_t) obarr) & ~0xf) == 0)
     siz = 0;
   if (!siz)
     return (Bprs_Set *) NULL;
   if (siz < small_len)
     {
-      unsigned smallcnt = 0;
-      Bprs_Object *smallarr[siz + 1];
+      setarr = smallarr;
       memset ((void *) smallarr, 0, siz * sizeof (void *));
       for (unsigned ix = 0; ix < siz; ix++)
 	{
-	  const void *curptr = arr[ix];
+	  const void *curptr = obarr[ix];
 	  if (bprs_value_kind (curptr) != BprsKind_Object)
 	    continue;
-	  smallarr[smallcnt++] = (Bprs_Object *) curptr;
+	  smallarr[cnt++] = (Bprs_Object *) curptr;
 	};
-      qsort (smallarr, smallcnt, sizeof (Bprs_Object *), bprs_object_cmp);
+    }
+  else
+    {
+      setarr = GC_MALLOC (siz * sizeof (void *));
+      memset ((void *) setarr, 0, siz * sizeof (void *));
+      for (unsigned ix = 0; ix < siz; ix++)
+	{
+	  const void *curptr = obarr[ix];
+	  if (bprs_value_kind (curptr) != BprsKind_Object)
+	    continue;
+	  setarr[cnt++] = (Bprs_Object *) curptr;
+	};
     };
-#warning unimplemented bprs_set_make_arr
-  BPRS_FATAL ("unimplemented bprs_set_make_arr siz=%ud", siz);
+  qsort (setarr, cnt, sizeof (Bprs_Object *), bprs_object_cmp);
+  unsigned card = 0;
+  for (unsigned ix = 0; ix < cnt; ix++)
+    {
+      if (ix > 0 && setarr[ix] == setarr[ix - 1])
+	continue;
+      h = (h * 571 + (ix & 0xff)) ^ setarr[ix]->ob_hash;
+      card++;
+    };
+  if (h == 0)
+    h = 10 + (card & 0xfff);
+  rset = GC_MALLOC (sizeof (*rset) + (1 + card) * sizeof (void *));
+  memset (rset, 0, sizeof (*rset) + (1 + card) * sizeof (void *));
+  unsigned nbelem = 0;
+  rset->set_kind = BprsKind_Set;
+  rset->set_gap = (uint16_t) ((uintptr_t) rset & BPRS_MASK_SET);
+  rset->set_magic = BPRS_SET_MAGIC;
+  rset->set_hash = h;
+
+  for (unsigned ix = 0; ix < cnt; ix++)
+    {
+      if (ix > 0 && setarr[ix] == setarr[ix - 1])
+	continue;
+      rset->set_elem[nbelem++] = setarr[ix];
+    };
+  assert (nbelem == card);
+  if (setarr != smallarr)
+    GC_FREE (setarr);
   return rset;
 }				/* end bprs_set_make_arr */
 
 Bprs_Set *
 bprs_set_make_args (unsigned siz, ...)
 {
+  va_list alist;
   Bprs_Set *rset = NULL;
-#warning unimplemented bprs_set_make_args
-  BPRS_FATAL ("unimplemented bprs_set_make_args siz=%ud", siz);
+  const unsigned smallsiz = 30;
+  Bprs_Object **arr = NULL;
+  Bprs_Object *smallarr[smallsiz];
+  if (siz < smallsiz)
+    arr = smallarr;
+  else
+    arr = GC_MALLOC ((siz + 1) * sizeof (void *));
+  memset (arr, 0, (siz + 1) * sizeof (void *));
+  va_start (alist, siz);
+  for (unsigned ix = 0; ix < siz; ix++)
+    arr[ix] = va_arg (alist, void *);
+  va_end (alist);
+  rset = bprs_set_make_arr((const void**)arr, siz);
+  if (arr != smallarr)
+    GC_FREE(arr);
   return rset;
 }				/* end bprs_set_make_args */
 
@@ -658,9 +719,9 @@ bprs_hash_set (const Bprs_Set *pset, bool *pok)
     goto bad;
   if (pset->set_kind != BprsKind_Set)
     goto bad;
-#warning unimplemented bprs_set_make_args
-  BPRS_FATAL ("unimplemented bprs_hash_set pset@%p", pset);
-  return h;
+  if (pok)
+    *pok = true;
+  return pset->set_hash;
 bad:
   if (pok)
     *pok = false;
@@ -670,18 +731,36 @@ bad:
 bool
 bprs_set_contains (const Bprs_Set *pset, const Bprs_Object *pobelem)
 {
-  bool res = false;
-#warning unimplemented bprs_set_contains
-  BPRS_FATAL ("unimplemented bprs_set_contains pset@%p", pset);
-  return res;
+  int hi=0, lo=0, md=0;
+  if (bprs_value_kind(pset) != BprsKind_Set)
+    return false;
+  if (bprs_value_kind(pobelem) != BprsKind_Object)
+    return false;
+  hi= pset->set_size - 1;
+  while(lo+4 < hi) {
+    md = (lo+hi)/2;
+    const Bprs_Object*curob = pset->set_elem[md];
+    if (curob == pobelem)
+      return true;
+    if (bprs_object_cmp(pobelem, curob) < 0)
+      hi = md;
+    else
+      lo = md;
+  }
+  for (md = lo; md<hi; md++) {
+    const Bprs_Object*curob = pset->set_elem[md];
+    if (curob == pobelem)
+      return true;
+  }
+  return false;
 }				/* end bprs_set_contains */
 
 unsigned
 bprs_set_cardinal (const Bprs_Set *pset, bool *pok)
 {
   unsigned res = 0;
-#warning unimplemented bprs_set_contains
-  BPRS_FATAL ("unimplemented bprs_set_contains pset@%p", pset);
+#warning unimplemented bprs_set_cardinal
+  BPRS_FATAL ("unimplemented bprs_set_cardinal pset@%p", pset);
   return res;
 }				/* end bprs_set_cardinal */
 
