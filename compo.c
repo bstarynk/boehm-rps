@@ -531,6 +531,7 @@ bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
   return false;
 }				/* end bprs_object_to_str */
 
+
 Bprs_Object *
 bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
 {
@@ -705,9 +706,9 @@ bprs_set_make_args (unsigned siz, ...)
   for (unsigned ix = 0; ix < siz; ix++)
     arr[ix] = va_arg (alist, void *);
   va_end (alist);
-  rset = bprs_set_make_arr((const void**)arr, siz);
+  rset = bprs_set_make_arr ((const void **) arr, siz);
   if (arr != smallarr)
-    GC_FREE(arr);
+    GC_FREE (arr);
   return rset;
 }				/* end bprs_set_make_args */
 
@@ -731,27 +732,29 @@ bad:
 bool
 bprs_set_contains (const Bprs_Set *pset, const Bprs_Object *pobelem)
 {
-  int hi=0, lo=0, md=0;
-  if (bprs_value_kind(pset) != BprsKind_Set)
+  int hi = 0, lo = 0, md = 0;
+  if (bprs_value_kind (pset) != BprsKind_Set)
     return false;
-  if (bprs_value_kind(pobelem) != BprsKind_Object)
+  if (bprs_value_kind (pobelem) != BprsKind_Object)
     return false;
-  hi= pset->set_size - 1;
-  while(lo+4 < hi) {
-    md = (lo+hi)/2;
-    const Bprs_Object*curob = pset->set_elem[md];
-    if (curob == pobelem)
-      return true;
-    if (bprs_object_cmp(pobelem, curob) < 0)
-      hi = md;
-    else
-      lo = md;
-  }
-  for (md = lo; md<hi; md++) {
-    const Bprs_Object*curob = pset->set_elem[md];
-    if (curob == pobelem)
-      return true;
-  }
+  hi = pset->set_size - 1;
+  while (lo + 4 < hi)
+    {
+      md = (lo + hi) / 2;
+      const Bprs_Object *curob = pset->set_elem[md];
+      if (curob == pobelem)
+	return true;
+      if (bprs_object_cmp (pobelem, curob) < 0)
+	hi = md;
+      else
+	lo = md;
+    }
+  for (md = lo; md < hi; md++)
+    {
+      const Bprs_Object *curob = pset->set_elem[md];
+      if (curob == pobelem)
+	return true;
+    }
   return false;
 }				/* end bprs_set_contains */
 
@@ -759,25 +762,26 @@ unsigned
 bprs_set_cardinal (const Bprs_Set *pset, bool *pok)
 {
   unsigned res = 0;
-  if (bprs_value_kind(pset) != BprsKind_Set) {
-    if (pok)
-      *pok = false;
-    return 0;
-  };
+  if (bprs_value_kind (pset) != BprsKind_Set)
+    {
+      if (pok)
+	*pok = false;
+      return 0;
+    };
   res = pset->set_size;
   return res;
 }				/* end bprs_set_cardinal */
 
-Bprs_Object*
-bprs_set_nth_elem(const Bprs_Set*pset, int n)
+Bprs_Object *
+bprs_set_nth_elem (const Bprs_Set *pset, int n)
 {
-  if (bprs_value_kind(pset) != BprsKind_Set)
+  if (bprs_value_kind (pset) != BprsKind_Set)
     return NULL;
-  if (n<0)
+  if (n < 0)
     n += pset->set_size;
-  if (n>=0 && n<pset->set_size)
+  if (n >= 0 && n < pset->set_size)
     return pset->set_elem[n];
   return NULL;
-} /* end bprs_set_nth_elem */
+}				/* end bprs_set_nth_elem */
 
 /* end boehm-rps/compo.c */
