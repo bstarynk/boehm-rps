@@ -382,8 +382,8 @@ _bprs_objhash_forget (Bprs_Object *pob)
 int
 bprs_object_cmp (const void *left, const void *right)
 {
-  const Bprs_Object *pobleft = NULL;
-  const Bprs_Object *pobright = NULL;
+  const Bprs_Object *pobleft = (const Bprs_Object *) left;
+  const Bprs_Object *pobright = (const Bprs_Object *) right;
   if ((uintptr_t) 0 == ((uintptr_t) left & 0xf))
     pobleft = NULL;
   if ((uintptr_t) 0 == ((uintptr_t) right & 0xf))
@@ -408,7 +408,6 @@ bprs_object_cmp (const void *left, const void *right)
     return -1;
   if (pobleft->ob_lo > pobright->ob_lo)
     return +1;
-#warning need code review (bprs_object_cmp)
   BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p", left, right);
   return -2;
 }				/* end bprs_object_cmp */

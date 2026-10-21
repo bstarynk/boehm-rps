@@ -113,7 +113,7 @@ extern uint32_t bprs_byte_len_string (const Bprs_String * ps, bool *pok);
 extern uint32_t bprs_utf_len_string (const Bprs_String * ps, bool *pok);
 /// conversions string to/from base 36
 extern uint64_t bprs_b36_to_uint64 (const char *s, const char **end,
-					bool *pok);
+				    bool *pok);
 extern bool bprs_uint64_to_b36 (uint64_t i, char *buf, int bufsiz);
 
 //// in compo.c
@@ -137,7 +137,7 @@ extern uint32_t bprs_hash_set (const Bprs_Set *pset, bool *pok);
 extern bool bprs_set_contains (const Bprs_Set *pset,
 			       const Bprs_Object *pobelem);
 extern unsigned bprs_set_cardinal (const Bprs_Set *pset, bool *pok);
-extern Bprs_Object* bprs_set_nth_elem(const Bprs_Set*pset, int n);
+extern Bprs_Object *bprs_set_nth_elem (const Bprs_Set *pset, int n);
 
 //// in load.c
 extern const char *bprs_shortgit_load (void);

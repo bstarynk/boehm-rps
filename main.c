@@ -122,15 +122,15 @@ _bprs_process_progargs (int argc, char **argv)
 	      nb = 1;
 	    else if (nb > 32)
 	      nb = 32;
-	    memset(bu, 0, sizeof(bu));
-	    uint64_t k = 36L*36*36L*36*36L*36*36L*36*35;
-	    if (bprs_uint64_to_b36(k, bu, sizeof(bu)-1))
+	    memset (bu, 0, sizeof (bu));
+	    uint64_t k = 36L * 36 * 36L * 36 * 36L * 36 * 36L * 36 * 35;
+	    if (bprs_uint64_to_b36 (k, bu, sizeof (bu) - 1))
 	      printf ("%ld : %s [%s:%d]\n", k, bu, __FILE__, __LINE__);
-	    uint64_t kb = 36L*36*36*36;
-	    if (bprs_uint64_to_b36(kb, bu, sizeof(bu)-1))
+	    uint64_t kb = 36L * 36 * 36 * 36;
+	    if (bprs_uint64_to_b36 (kb, bu, sizeof (bu) - 1))
 	      printf ("%ld : %s [%s:%d] /*36^4*/\n", kb, bu,
 		      __FILE__, __LINE__);
-	    assert(strtol(bu, NULL, 36) == (long)kb);
+	    assert (strtol (bu, NULL, 36) == (long) kb);
 	    fflush (NULL);
 	    for (int ix = 0; ix < nb; ix++)
 	      {
@@ -148,7 +148,7 @@ _bprs_process_progargs (int argc, char **argv)
 		    fflush (NULL);
 		  }
 		else
-		  BPRS_WARNING("failed to extract id from pob@%p", pob);
+		  BPRS_WARNING ("failed to extract id from pob@%p", pob);
 	      }
 	  }
 	  break;
@@ -193,33 +193,35 @@ _bprs_process_progargs (int argc, char **argv)
 	    char randbuf[randsiz + 16];
 	    int i = 0;
 	    memset (randbuf, 0, sizeof (randbuf));
-	    if (optarg[0] == '_') {
-	      srandom(getpid());
-	    }
-	    else {
-	    for (const char *pc = optarg;
-		 i < randsiz
-		 && pc && pc[0] && isxdigit (pc[0])
-		 && pc[1] && isxdigit (pc[1]); (pc += 2), (i++))
+	    if (optarg[0] == '_')
 	      {
-		char hxbuf[4];
-		char *endbuf = NULL;
-		hxbuf[0] = pc[0];
-		hxbuf[1] = pc[1];
-		hxbuf[2] = hxbuf[3] = 0;
-		unsigned long hb = strtol (hxbuf, &endbuf, 16);
-		assert (endbuf == hxbuf + 2);
-		randbuf[i] = (char) (hb & 0xff);
+		srandom (getpid ());
+	      }
+	    else
+	      {
+		for (const char *pc = optarg;
+		     i < randsiz
+		     && pc && pc[0] && isxdigit (pc[0])
+		     && pc[1] && isxdigit (pc[1]); (pc += 2), (i++))
+		  {
+		    char hxbuf[4];
+		    char *endbuf = NULL;
+		    hxbuf[0] = pc[0];
+		    hxbuf[1] = pc[1];
+		    hxbuf[2] = hxbuf[3] = 0;
+		    unsigned long hb = strtol (hxbuf, &endbuf, 16);
+		    assert (endbuf == hxbuf + 2);
+		    randbuf[i] = (char) (hb & 0xff);
+		  };
+		if (i < 8)
+		  BPRS_FATAL ("too short or bad random initializer %s\n"
+			      " - eight bytes in hexa required but got %d",
+			      optarg, i);
+		_bprs_random = strtol (optarg, NULL, 16);
+		if (!initstate (_bprs_random, randbuf, (size_t) i))
+		  BPRS_FATAL ("initstate %s failed (random %ld)", optarg,
+			      _bprs_random);
 	      };
-	    if (i < 8)
-	      BPRS_FATAL ("too short or bad random initializer %s\n"
-			  " - eight bytes in hexa required but got %d",
-			  optarg, i);
-	    _bprs_random = strtol (optarg, NULL, 16);
-	    if (!initstate (_bprs_random, randbuf, (size_t) i))
-	      BPRS_FATAL ("initstate %s failed (random %ld)", optarg,
-			  _bprs_random);
-	    };
 	    _bprs_random = random ();
 	    if (bprs_verbose)
 	      printf ("%s initialized random with %s first random %ld\n",
