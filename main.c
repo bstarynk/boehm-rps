@@ -255,7 +255,7 @@ main (int argc, char **argv)
     BPRS_FATAL ("failed to dlopen self program (%s)\n", dlerror ());
   char *cwd = getcwd (_bprs_cwdbuf, sizeof (_bprs_cwdbuf) - 1);
   if (!cwd)
-    BPRS_FATAL ("getcwd failed in % git %s (%s:%d)",
+    BPRS_FATAL ("getcwd failed in %s git %s (%s:%d)",
 		_bprs_argv[0], bprs_shortgit, __FILE__, __LINE__);
   syslog (LOG_INFO, "starting %s git %s in %s (srcdir %s)",
 	  _bprs_argv[0], bprs_shortgit, _bprs_cwdbuf, bprs_sourcedir);
