@@ -408,7 +408,8 @@ bprs_object_cmp (const void *left, const void *right)
     return -1;
   if (pobleft->ob_lo > pobright->ob_lo)
     return +1;
-  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p", left, right);
+  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p",
+	      left, right);
   return -2;
 }				/* end bprs_object_cmp */
 
@@ -714,7 +715,6 @@ bprs_set_make_args (unsigned siz, ...)
 uint32_t
 bprs_hash_set (const Bprs_Set *pset, bool *pok)
 {
-  uint32_t h = 0;
   if (!pset || ((uintptr_t) pset & 0xf))
     goto bad;
   if (pset->set_kind != BprsKind_Set)
