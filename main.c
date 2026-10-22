@@ -15,6 +15,15 @@
 
 static const char _bprs_main_shortgit[] = BPRS_SHORTGIT;
 
+extern void bprs_last_main (void);
+
+const char *
+bprs_shortgit_main (void)
+{
+  assert ((char *) bprs_last_main > (char *) bprs_shortgit_main);
+  return _bprs_main_shortgit;
+}				/* end bprs_shortgit_main */
+
 bool bprs_verbose;
 static int _bprs_argc;
 static char **_bprs_argv;
@@ -267,12 +276,6 @@ brps_progargv (int rk)
   return NULL;
 }				/* end of brps_argc */
 
-const char *
-bprs_shortgit_main (void)
-{
-  return _bprs_main_shortgit;
-}				/* end bprs_shortgit_main */
-
 void *
 bprs_program_dlhandle (void)
 {
@@ -360,70 +363,75 @@ bprs_value_hash (const void *p)
 }				/* end of bprs_value_hash  */
 
 
-extern void* malloc(size_t siz);
-extern void free(void*);
-extern void*calloc(size_t nbelem, size_t siz);
-extern void*realloc(void*p, size_t siz);
-extern void*reallocarray(void*p, size_t nbelem, size_t siz);
+extern void *malloc (size_t siz);
+extern void free (void *);
+extern void *calloc (size_t nbelem, size_t siz);
+extern void *realloc (void *p, size_t siz);
+extern void *reallocarray (void *p, size_t nbelem, size_t siz);
 
-void*
-malloc(size_t siz)
+void *
+malloc (size_t siz)
 {
-  if (siz==0)
+  if (siz == 0)
     return NULL;
-  if (siz%16 != 0)
-    siz = (siz|0xf)+1;
-  void* p = GC_MALLOC(siz);
-  assert(p != NULL);
+  if (siz % 16 != 0)
+    siz = (siz | 0xf) + 1;
+  void *p = GC_MALLOC (siz);
+  assert (p != NULL);
   memset (p, 0, siz);
   return p;
-} /* end malloc */
+}				/* end malloc */
 
 void
-free (void*p)
+free (void *p)
 {
   if (p)
-    GC_FREE(p);
-} /* end free */
+    GC_FREE (p);
+}				/* end free */
 
-void*
-calloc(size_t nbelem, size_t elemsiz)
+void *
+calloc (size_t nbelem, size_t elemsiz)
 {
-  if (nbelem==0)
+  if (nbelem == 0)
     return NULL;
-  assert(elemsiz>0);
-  if(nbelem> (1<<30) || elemsiz> (1<<20))
-    BPRS_FATAL("calloc nbelem=%ld elemsiz=%ld too big",
-	       (long)nbelem, (long)elemsiz);
-  if ((((unsigned long)nbelem * (unsigned long)elemsiz) >> 10)
-      < (32 << 20) /* 32 Gigabytes */)
-    BPRS_FATAL("calloc nbelem=%ld elemsiz=%ld too much",
-	       (long)nbelem, (long)elemsiz);
-      void*p = GC_MALLOC(nbelem*elemsiz);
-      if (p)
-	memset(p, 0, nbelem*elemsiz);
-      return p;
-} /* end calloc */
+  assert (elemsiz > 0);
+  if (nbelem > (1 << 30) || elemsiz > (1 << 20))
+    BPRS_FATAL ("calloc nbelem=%ld elemsiz=%ld too big",
+		(long) nbelem, (long) elemsiz);
+  if ((((unsigned long) nbelem * (unsigned long) elemsiz) >> 10)
+      < (32 << 20) /* 32 Gigabytes */ )
+    BPRS_FATAL ("calloc nbelem=%ld elemsiz=%ld too much",
+		(long) nbelem, (long) elemsiz);
+  void *p = GC_MALLOC (nbelem * elemsiz);
+  if (p)
+    memset (p, 0, nbelem * elemsiz);
+  return p;
+}				/* end calloc */
 
-void*
-realloc(void*p, size_t siz)
+void *
+realloc (void *p, size_t siz)
 {
-  if ((siz>>10) > (32<<20))
-    BPRS_FATAL("realloc too big %ld kbytes", (siz>>10));
-  void* res = GC_REALLOC(p, siz);
+  if ((siz >> 10) > (32 << 20))
+    BPRS_FATAL ("realloc too big %ld kbytes", (siz >> 10));
+  void *res = GC_REALLOC (p, siz);
   return res;
-} /* end realloc */
+}				/* end realloc */
 
 
 void *
-reallocarray(void *p, size_t nbcomp, size_t elemsize)
+reallocarray (void *p, size_t nbcomp, size_t elemsize)
 {
-  if ((((unsigned long)nbcomp * (unsigned long)elemsize) >> 10)
-      < (32 << 20) /* 32 Gigabytes */)
-    BPRS_FATAL("reallocarray p=%p nbcomp=%ld elemsize=%ld too much",
-	       p, (long)nbcomp, (long)elemsize);
-  void*res = GC_REALLOC(p, nbcomp*elemsize);
+  if ((((unsigned long) nbcomp * (unsigned long) elemsize) >> 10)
+      < (32 << 20) /* 32 Gigabytes */ )
+    BPRS_FATAL ("reallocarray p=%p nbcomp=%ld elemsize=%ld too much",
+		p, (long) nbcomp, (long) elemsize);
+  void *res = GC_REALLOC (p, nbcomp * elemsize);
   return res;
-} /* end reallocarray */
+}				/* end reallocarray */
+
+void
+bprs_last_main (void)
+{
+}				/* end bprs_last_main */
 
   ///// end of file boehm-rps/main.c (on github.com/bstarynk)
