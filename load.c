@@ -23,7 +23,7 @@ bprs_shortgit_load (void)
 
 
 #define BPRS_LOAD_MAGIC 0x382237B	//58860411
-struct bprs_loaded_file_st
+struct bprs_loaded_file_st		/* ie Bprs_ */
 {
   const unsigned ldf_magic;	/* should be BPRS_LOAD_MAGIC */
   unsigned ldf_lineno;		/* line number */
@@ -32,6 +32,8 @@ struct bprs_loaded_file_st
   char *ldf_linbuf;		/* malloced line buffer, thru getline */
   const char *ldf_path;		/* if starts with ! or | use popen */
   FILE *ldf_file;
+  void* ldf_data;
+  void* ldf_xtra;
 };
 
 #warning we could need bprs_load_object_content
