@@ -51,9 +51,12 @@ struct bprs_string_st
   char s_val[];
 };
 
+extern void bprs_last_util(void);
+
 const char *
 bprs_shortgit_util (void)
 {
+  assert((char*)bprs_shortgit_util < (char*)bprs_last_util);
   return _bprs_util_shortgit;
 }				/* end bprs_shortgit_util */
 
@@ -370,5 +373,11 @@ bprs_fatal_at (const char *srcfil, int lin, const char *fun,
   fflush (NULL);		/* can be a GDB breakpoint */
   abort ();
 }				/* end bprs_fatal_at */
+
+
+void
+bprs_last_util(void)
+{
+} /* end bprs_last_util */
 
 /* end boehm-rps/util.c */
