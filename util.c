@@ -77,7 +77,7 @@ bprs_uint64_to_b36 (uint64_t val, char *out, int bufsiz)
   if (bufsiz < (int) n + 1)
     return false;
 
-  for (int i = 0; i < n; ++i)
+  for (int i = 0; i < (int) n; ++i)
     out[i] = tmp[n - 1 - i];
 
   out[n] = '\0';
