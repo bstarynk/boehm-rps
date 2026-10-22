@@ -140,6 +140,7 @@ extern unsigned bprs_set_cardinal (const Bprs_Set *pset, bool *pok);
 extern Bprs_Object *bprs_set_nth_elem (const Bprs_Set *pset, int n);
 
 //// in load.c
+typedef struct bprs_loaded_file_st Bprs_Loaded_File;
 extern const char *bprs_shortgit_load (void);
 extern void bprs_load_file (const char *name, FILE *fil);
 #endif /*BOEHMRPS_INCLUDED */
