@@ -16,7 +16,7 @@
 static const char _bprs_util_shortgit[] = BPRS_SHORTGIT;
 
 
-static const char _bprs_b36_digits[] = "0123456789ABCDEFGHIJKLMNOPQRTSUVWXYZ";
+static const char _bprs_b36_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 #define BPRS_INT_MAGIC 68140917	/* 0x40fbf75 */
 #define BPRS_MASK_INT 0x7fef
 struct bprs_int_st
@@ -61,7 +61,6 @@ bprs_shortgit_util (void)
 bool
 bprs_uint64_to_b36 (uint64_t val, char *out, int bufsiz)
 {
-  static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char tmp[16];
   size_t n = 0;
 
@@ -70,7 +69,7 @@ bprs_uint64_to_b36 (uint64_t val, char *out, int bufsiz)
 
   do
     {
-      tmp[n++] = digits[val % 36];
+      tmp[n++] = _bprs_b36_digits[val % 36];
       val /= 36;
     }
   while (val != 0);
