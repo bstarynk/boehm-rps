@@ -34,7 +34,7 @@
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT
 #endif
-extern void bprs_load_file (const char *name, FILE *fil);
+
 #define BPRS_MAGIC_STRING "Boehm-Rps-Store"
 
 enum bprs_kind_en
