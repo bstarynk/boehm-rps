@@ -215,6 +215,8 @@ struct bprs_object_st
   uint32_t ob_sizattr;
   uint32_t ob_hi;
   uint64_t ob_lo;
+  char ob_prefixrout[8];
+  void* ob_routptr;
   pthread_mutex_t ob_mtx;
   struct bprs_attrpair_st *ob_attrs;
   void **ob_comps;
@@ -778,8 +780,8 @@ bprs_set_nth_elem (const Bprs_Set *pset, int n)
     return NULL;
   if (n < 0)
     n += pset->set_size;
-  if (n >= 0 && n < pset->set_size)
-    return pset->set_elem[n];
+  if (n >= 0 && n < (int) pset->set_size)
+    return (Bprs_Object*) (pset->set_elem[n]);
   return NULL;
 }				/* end bprs_set_nth_elem */
 
