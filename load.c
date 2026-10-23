@@ -75,6 +75,15 @@ bprs_open_load_file (const char *path)
   return res;
 }				/* end bprs_open_load_file */
 
+void
+bprs_process_loaded_file (Bprs_Loaded_File *ld)
+{
+  if (!ld || ld->ldf_magic != BPRS_LOAD_MAGIC
+      || !ld->ldf_linbuf || !ld->ldf_file || !ld->ldf_path)
+    BPRS_FATAL ("corruption in bprs_process_loaded_file ld@%p", ld);
+#warning incomplete bprs_process_loaded_file
+  BPRS_WARNING ("incomplete bprs_process_loaded_file %s", ld->ldf_path);
+}				/* end bprs_process_loaded_file */
 
 #warning we could need bprs_load_object_content
 /* we might need a struct packing load data */
