@@ -170,29 +170,10 @@ _bprs_process_progargs (int argc, char **argv)
 	  }
 	case 'L':
 	  {
-	    FILE *loadfil = NULL;
-	    bool ispipe = false;
-	    int clo = 0;
-	    if (optarg[0] == '|' || optarg[0] == '!')
-	      {
-		loadfil = popen (optarg + 1, "r");
-		ispipe = true;
-	      }
-	    else
-	      loadfil = fopen (optarg, "r");
-	    if (!loadfil)
-	      BPRS_FATAL ("failed to fopen %s file %s (%s)",
-			  ispipe ? "command" : "plain", optarg,
-			  strerror (errno));
-	    bprs_load_file (optarg, loadfil);
-	    if (ispipe)
-	      clo = pclose (loadfil);
-	    else
-	      clo = fclose (loadfil);
-	    if (clo)
-	      BPRS_FATAL ("failed to close %s file %s",
-			  ispipe ? "command" : "plain", optarg);
-	    loadfil = NULL;
+	    Bprs_Loaded_File *ldfil = bprs_open_load_file (optarg);
+	    if (!ldfil)
+	      BPRS_FATAL ("failed to open load file %s", optarg);
+	    bprs_process_loaded_file (ldfil);
 	    continue;
 	  }
 	  break;
@@ -365,7 +346,7 @@ bprs_value_hash (const void *p)
   return h;
 }				/* end of bprs_value_hash  */
 
-
+#if 0
 extern void *malloc (size_t siz);
 extern void free (void *);
 extern void *calloc (size_t nbelem, size_t siz);
@@ -431,6 +412,7 @@ reallocarray (void *p, size_t nbcomp, size_t elemsize)
   void *res = GC_REALLOC (p, nbcomp * elemsize);
   return res;
 }				/* end reallocarray */
+#endif
 
 void
 bprs_last_main (void)
