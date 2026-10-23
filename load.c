@@ -23,18 +23,58 @@ bprs_shortgit_load (void)
 
 
 #define BPRS_LOAD_MAGIC 0x382237B	//58860411
-struct bprs_loaded_file_st		/* ie Bprs_ */
+struct bprs_loaded_file_st	/* ie Bprs_Loaded_File */
 {
-  const unsigned ldf_magic;	/* should be BPRS_LOAD_MAGIC */
+  unsigned ldf_magic;		/* should be BPRS_LOAD_MAGIC */
   unsigned ldf_lineno;		/* line number */
   unsigned ldf_linoff;		/* current offset in line */
-  unsigned ldf_bufsiz;		/* current size of ldf_linbuf */
+  int ldf_linelen;
   char *ldf_linbuf;		/* malloced line buffer, thru getline */
+  size_t ldf_bufsiz;		/* current size of ldf_linbuf */
   const char *ldf_path;		/* if starts with ! or | use popen */
   FILE *ldf_file;
-  void* ldf_data;
-  void* ldf_xtra;
+  void *ldf_data;
+  void *ldf_xtra;
 };
+
+Bprs_Loaded_File *
+bprs_open_load_file (const char *path)
+{
+  Bprs_Loaded_File *res = NULL;
+  if (!path || !path[0])
+    BPRS_FATAL ("invalid path to bprs_open_load_file");
+  res = GC_MALLOC (sizeof (*res));
+  memset (res, 0, sizeof (*res));
+  res->ldf_magic = BPRS_LOAD_MAGIC;
+  if (path[0] == '!' || path[0] == '|')
+    res->ldf_file = popen (path + 1, "r");
+  else
+    res->ldf_file = fopen (path, "r");
+  if (!res->ldf_file)
+    BPRS_FATAL ("failed to open load file %s", path);
+  ssize_t linlen =
+    getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file);
+  if (linlen > INT_MAX / 4)
+    BPRS_FATAL ("too long %ld first line in %s", (long) linlen, path);
+  res->ldf_linelen = (int) linlen;
+  /// find first a line having  "Boehm-Rps-Store"
+  while ((linlen =
+	  getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file)) > 0)
+    {
+      res->ldf_lineno++;
+      if (strstr (res->ldf_linbuf, BPRS_MAGIC_STRING))
+	break;
+      if (linlen > INT_MAX / 4)
+	BPRS_FATAL ("too long %ld  line#%d in %s",
+		    (long) linlen, res->ldf_lineno, res->ldf_path);
+      res->ldf_linelen = (int) linlen;
+    };
+  if (feof (res->ldf_file))
+    BPRS_FATAL ("no line with magic %s in load file %s",
+		BPRS_MAGIC_STRING, res->ldf_path);
+  return res;
+}				/* end bprs_open_load_file */
+
 
 #warning we could need bprs_load_object_content
 /* we might need a struct packing load data */
