@@ -42,4 +42,10 @@ _list_.c: GNUmakefile
 	printf "const char* bprs_human_md5[]= {\n" >> $@
 	for f in $(HUMAN_C_FILES); do printf "  \"%s\", // %s\n" $$(md5sum $$f </dev/null); done >> $@
 	echo "  (const char*)0 };\n" >> $@
+	printf "const char* bprs_generated_files[]= {\n" >> $@
+	for f in $(GENERATED_C_FILES); do printf "  \"%s\",\n" $$f; done >> $@
+	echo "  (const char*)0 };\n" >> $@
+	printf "const char* bprs_generated_md5[]= {\n" >> $@
+	for f in $(GENERATED_C_FILES); do printf "  \"%s\",\n" $$(md5sum $$f</dev/null); done >> $@
+	echo "  (const char*)0 };\n" >> $@
 
