@@ -142,5 +142,6 @@ extern Bprs_Object *bprs_set_nth_elem (const Bprs_Set *pset, int n);
 //// in load.c
 typedef struct bprs_loaded_file_st Bprs_Loaded_File;
 extern const char *bprs_shortgit_load (void);
-extern void bprs_load_file (const char *name, FILE *fil);
+extern Bprs_Loaded_File *bprs_open_load_file (const char *path);	/* if path starts with ! or | use popen */
+
 #endif /*BOEHMRPS_INCLUDED */
