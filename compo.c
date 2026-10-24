@@ -216,7 +216,7 @@ struct bprs_object_st
   uint32_t ob_hi;
   uint64_t ob_lo;
   char ob_prefixrout[8];
-  void* ob_routptr;
+  void *ob_routptr;
   pthread_mutex_t ob_mtx;
   struct bprs_attrpair_st *ob_attrs;
   void **ob_comps;
@@ -410,8 +410,7 @@ bprs_object_cmp (const void *left, const void *right)
     return -1;
   if (pobleft->ob_lo > pobright->ob_lo)
     return +1;
-  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p",
-	      left, right);
+  BPRS_FATAL ("corruption in bprs_object_cmp left@%p right@p", left, right);
   return -2;
 }				/* end bprs_object_cmp */
 
@@ -781,7 +780,7 @@ bprs_set_nth_elem (const Bprs_Set *pset, int n)
   if (n < 0)
     n += pset->set_size;
   if (n >= 0 && n < (int) pset->set_size)
-    return (Bprs_Object*) (pset->set_elem[n]);
+    return (Bprs_Object *) (pset->set_elem[n]);
   return NULL;
 }				/* end bprs_set_nth_elem */
 

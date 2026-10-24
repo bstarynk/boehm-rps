@@ -145,5 +145,5 @@ extern const char *bprs_shortgit_load (void);
 
 /* if path starts with ! or | use popen */
 extern Bprs_Loaded_File *bprs_open_load_file (const char *path);
-extern void bprs_process_loaded_file(Bprs_Loaded_File*);
+extern void bprs_process_loaded_file (Bprs_Loaded_File *);
 #endif /*BOEHMRPS_INCLUDED */
