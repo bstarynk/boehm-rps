@@ -14,11 +14,12 @@ HUMAN_C_FILES = $(wildcard [a-z]*.c)
 HUMAN_OBJ_FILES = $(patsubst %.c, obj/%.o, $(HUMAN_C_FILES))
 ### convention generated/_*_.c are temporary
 GENERATED_C_FILES = $(wildcard generated/*.c)
+.SUFFIXES: .i 
 .PHONY: all clean indent
 all: boehm-rps
 
 clean:
-	/bin/rm -vf *~ obj/*.o boehm-rps _*_.c
+	/bin/rm -vf *~ obj/*.o boehm-rps _*_.c *.i
 
 indent:
 	$(INDENT) -v $(HUMAN_HEADER)
@@ -26,6 +27,9 @@ indent:
 
 obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
+
+%.i: %.c $(HUMAN_HEADER)  | GNUmakefile get-short-git.sh
+	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
 
 boehm-rps: $(HUMAN_OBJ_FILES) obj/_list_.o | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -ULINKBOEHMRPS $(CFLAGS)  $^ \
