@@ -88,6 +88,7 @@ extern void bprs_fatal_at (const char *srcfil, int lin, const char *fun,
   __attribute__((format (printf, 4, 5), noreturn));
 extern void *bprs_program_dlhandle (void);
 extern uint32_t bprs_value_hash (const void *);	/* or else 0 if invalid value */
+extern const char *bprs_executable (void);	/* give the current executable path */
 extern Bprs_Kind bprs_value_kind (const void *);
 //// end of functions in main.c
 
