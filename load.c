@@ -53,7 +53,7 @@ bprs_open_load_file (const char *path)
   if (!res->ldf_file)
     BPRS_FATAL ("failed to open load file %s", path);
   {
-    char*repath = realpath (path, NULL);
+    char *repath = realpath (path, NULL);
     assert (repath != NULL);
     res->ldf_path = GC_STRDUP (repath);
     free (repath);

@@ -264,6 +264,10 @@ main (int argc, char **argv)
 	  _bprs_argv[0], bprs_shortgit, _bprs_cwdbuf, exe, bprs_sourcedir);
   bprs_initialize_objects ();
   _bprs_process_progargs (argc, argv);
+  if (bprs_verbose)
+    printf ("%s: end of process %d git %s (%s:%d)\n", _bprs_argv[0],
+	    (int) getpid (), bprs_shortgit, __FILE__, __LINE__ - 1);
+  return 0;
 }				/* end main */
 
 int
