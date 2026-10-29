@@ -32,7 +32,7 @@ obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
 
 rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o | $(HUMAN_HEADER) GNUmakefile
-	$(CC) -ULINK_RPSBOEHM $(CFLAGS)  $^ \
+	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
 	/bin/mv -vf _list_.c _list_.c~
 
