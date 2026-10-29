@@ -2,5 +2,6 @@
 .orig
 obj/*.o
 boehm-rps
+rpsboehm
 generated/_*_.c
 _*_.c
