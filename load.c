@@ -78,8 +78,10 @@ bprs_open_load_file (const char *path)
 void
 bprs_process_loaded_file (Bprs_Loaded_File *ld)
 {
-  if (!ld || ld->ldf_magic != BPRS_LOAD_MAGIC
-      || !ld->ldf_linbuf || !ld->ldf_file || !ld->ldf_path)
+  if (!ld || ld->ldf_magic != BPRS_LOAD_MAGIC)
+    BPRS_FATAL ("invalid argument @%p to bprs_process_loaded_file",
+		(void *) ld);
+  if (!ld->ldf_linbuf || !ld->ldf_file || !ld->ldf_path)
     BPRS_FATAL ("corruption in bprs_process_loaded_file ld@%p", ld);
   if (bprs_verbose)
     printf ("%s process loaded file %s:%d\n",
@@ -151,8 +153,8 @@ bprs_load_file (const char *name, FILE *fil)
 	      if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
 		BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
 			    "bad hash %d",
-			    name, linecnt, hi, lo, bprs_hash_object (pobj,
-								     NULL));
+			    name, linecnt, hi, lo,
+			    bprs_hash_object (pobj, NULL));
 	    }
 	  else
 	    {
