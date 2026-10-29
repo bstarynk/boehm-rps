@@ -224,13 +224,34 @@ _bprs_process_progargs (int argc, char **argv)
     };
 }				/* end bprs_process_progargs */
 
+static char *_bprs_execpath;
+
+const char *
+bprs_executable (void)
+{
+  char buf[384];
+  if (_bprs_execpath && _bprs_execpath[0])
+    return _bprs_execpath;
+  memset (buf, 0, sizeof (buf));
+  ssize_t rsiz = readlink ("/proc/self/exe", buf, sizeof (buf) - 1);
+  if (rsiz > 0 && buf[0])
+    {
+      _bprs_execpath = GC_MALLOC_ATOMIC (1 + ((rsiz + 15) | 0xf));
+      strncpy (_bprs_execpath, buf, rsiz);
+      return _bprs_execpath;
+    }
+  else
+    BPRS_FATAL ("bprs_executable failed to readlink /proc/self/exe %s",
+		strerror (errno));
+}				/* end bprs_executable */
+
 int
 main (int argc, char **argv)
 {
   GC_INIT ();
   _bprs_argc = argc;
   _bprs_argv = argv;
-  openlog ("boehm-rps", LOG_CONS | LOG_PID, LOG_USER);
+  openlog (argv[0], LOG_CONS | LOG_PID, LOG_USER);
   _bprs_proghdl = dlopen (NULL, RTLD_NOW);
   if (!_bprs_proghdl)
     BPRS_FATAL ("failed to dlopen self program (%s)\n", dlerror ());
@@ -238,8 +259,9 @@ main (int argc, char **argv)
   if (!cwd)
     BPRS_FATAL ("getcwd failed in %s git %s (%s:%d)",
 		_bprs_argv[0], bprs_shortgit, __FILE__, __LINE__);
-  syslog (LOG_INFO, "starting %s git %s in %s (srcdir %s)",
-	  _bprs_argv[0], bprs_shortgit, _bprs_cwdbuf, bprs_sourcedir);
+  const char *exe = bprs_executable ();
+  syslog (LOG_INFO, "starting %s git %s in %s exe %s (srcdir %s)",
+	  _bprs_argv[0], bprs_shortgit, _bprs_cwdbuf, exe, bprs_sourcedir);
   bprs_initialize_objects ();
   _bprs_process_progargs (argc, argv);
 }				/* end main */
