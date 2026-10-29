@@ -1,5 +1,5 @@
 #!/bin/bash
-# file boehm-rps/do-load-boehrps.sh
+# file boehm-rps/do-load-boehmrps.sh
 # SPDX-License-Identifier: GPL-3.0-or-later
 # useless stuff
 
@@ -8,7 +8,10 @@
 #
 #      © Copyright (C) 2026 Basile Starynkevitch
 #
-make
-./boehm-rps -v -L $0
+if [ ! -x ./rpsboehm ] ; then
+    make
+fi
+./rpsboehm -v -L $0
+exit $?
 # our magic string is below
 Boehm-Rps-Store
