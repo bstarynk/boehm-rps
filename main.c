@@ -97,8 +97,8 @@ bprs_show_usage (void)
   puts ("\t -L | --load $FILE        # load the given textual $FILE");
   puts ("\t -P | --plugin $PLUGIN    # dlopen given $PLUGIN");
   puts ("\t -R | --random-seed $HEX  # $HEX is an hexadecimal string");
+  puts ("\t                          # for initstate(3) of random(3)");
   puts ("\t -O | --show-oids $NUM    # show $NUM fresh oids");
-  puts ("                            # for initstate(3) of random(3)");
 }				/* end of bprs_show_usage */
 
 static void
@@ -346,7 +346,7 @@ bprs_value_hash (const void *p)
   return h;
 }				/* end of bprs_value_hash  */
 
-#if 0
+#if 0 && redefinition_malloc
 extern void *malloc (size_t siz);
 extern void free (void *);
 extern void *calloc (size_t nbelem, size_t siz);
@@ -412,11 +412,15 @@ reallocarray (void *p, size_t nbcomp, size_t elemsize)
   void *res = GC_REALLOC (p, nbcomp * elemsize);
   return res;
 }				/* end reallocarray */
-#endif
+#endif /*0 && redefinition_malloc */
+
+
+
 
 void
 bprs_last_main (void)
 {
+  asm volatile ("nop; nop; nop; nop");
 }				/* end bprs_last_main */
 
   ///// end of file boehm-rps/main.c (on github.com/bstarynk)
