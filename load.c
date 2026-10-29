@@ -52,6 +52,13 @@ bprs_open_load_file (const char *path)
     res->ldf_file = fopen (path, "r");
   if (!res->ldf_file)
     BPRS_FATAL ("failed to open load file %s", path);
+  {
+    char*repath = realpath (path, NULL);
+    assert (repath != NULL);
+    res->ldf_path = GC_STRDUP (repath);
+    free (repath);
+  }
+  assert (res->ldf_path);
   ssize_t linlen =
     getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file);
   if (linlen > INT_MAX / 4)
