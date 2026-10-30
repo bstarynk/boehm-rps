@@ -5,7 +5,10 @@
 ##                    <basile@starynkevitch.net>
 CC = gcc
 INDENT ?= indent
-OPTIM ?= -O1
+### une fois que le logiciel fonctionne et a été débogué faire make clean
+### puis make OPTIM=-O1
+### once the software is debugged so make clean then make OPTIM=-O1
+OPTIM ?= -Og
 CFLAGS += -Wall -Wextra -Wmissing-prototypes -std=gnu17 $(OPTIM) -g
 CFLAGS += $(shell pkg-config --cflags bdw-gc)
 LDFLAGS += $(shell pkg-config --libs bdw-gc) 
