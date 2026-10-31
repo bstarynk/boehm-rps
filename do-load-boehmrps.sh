@@ -9,6 +9,8 @@
 #      © Copyright (C) 2026 Basile Starynkevitch
 #
 if [ ! -x ./rpsboehm ] ; then
+    printf "%s building rpsboehm from code on github.com/bstarynk/boehm-rps.git in %s\n" \
+	   "$0" "$(/bin/pwd)"
     make
 fi
 ./rpsboehm -v -L $0
