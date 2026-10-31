@@ -113,8 +113,9 @@ _bprs_process_progargs (int argc, char **argv)
 	{
 	case 'v':
 	  bprs_verbose = true;
-	  printf ("%s (git %s) runs verbosely (pid %d)\n",
-		  argv[0], bprs_shortgit, (int) getpid ());
+	  printf ("%s (git %s) runs verbosely (pid %d) on %s [%s:%d]\n",
+		  argv[0], bprs_shortgit, (int) getpid (),
+		  bprs_host (), __FILE__, __LINE__);
 	  break;
 	case 'V':
 	  bprs_show_version ();
@@ -225,6 +226,7 @@ _bprs_process_progargs (int argc, char **argv)
 }				/* end bprs_process_progargs */
 
 static char *_bprs_execpath;
+static char _bprs_hostname[80];
 
 const char *
 bprs_executable (void)
@@ -245,12 +247,22 @@ bprs_executable (void)
 		strerror (errno));
 }				/* end bprs_executable */
 
+const char *
+bprs_host (void)
+{
+  return _bprs_hostname;
+}				/* end bprs_host */
+
 int
 main (int argc, char **argv)
 {
   GC_INIT ();
+  memset (_bprs_hostname, 0, sizeof (_bprs_hostname));
   _bprs_argc = argc;
   _bprs_argv = argv;
+  if (gethostname (_bprs_hostname, sizeof (_bprs_hostname) - 1))
+    BPRS_FATAL ("%s: gethostname failed git %s (%s)",
+		argv[0], _bprs_main_shortgit, strerror (errno));
   openlog (argv[0], LOG_CONS | LOG_PID, LOG_USER);
   _bprs_proghdl = dlopen (NULL, RTLD_NOW);
   if (!_bprs_proghdl)
@@ -265,8 +277,10 @@ main (int argc, char **argv)
   bprs_initialize_objects ();
   _bprs_process_progargs (argc, argv);
   if (bprs_verbose)
-    printf ("%s: end of process %d git %s (%s:%d)\n", _bprs_argv[0],
-	    (int) getpid (), bprs_shortgit, __FILE__, __LINE__ - 1);
+    printf ("%s: end of process %d git %s host %s (%s:%d)\n",
+	    _bprs_argv[0],
+	    (int) getpid (), bprs_shortgit, bprs_host (),
+	    __FILE__, __LINE__ - 3);
   return 0;
 }				/* end main */
 
