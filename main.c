@@ -106,9 +106,15 @@ _bprs_process_progargs (int argc, char **argv)
 {
   int argcod = -1;
   int optix = 0;
+  int loopcnt = 0;
   for (;;)
     {
-      argcod = getopt_long (argc, argv, "vVHL:P:R:O:", _bprs_options, &optix);
+      loopcnt++;
+      if (loopcnt + 2 > argc)
+	BPRS_FATAL ("too many %d loops for %d program arguments (git %s)",
+		    loopcnt, argc, bprs_shortgit);
+      argcod = getopt_long (argc, argv, "vVHL:P:R:O:",
+			    _bprs_options, &optix);
       switch (argcod)
 	{
 	case 'v':
