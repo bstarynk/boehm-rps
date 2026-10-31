@@ -1,5 +1,5 @@
 /****************************************************************
- * file boehm-rps/main.c
+ * file boehm-rps/util.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description: This file is part of the Reflective Persistent System
@@ -380,4 +380,11 @@ bprs_last_util (void)
 {
 }				/* end bprs_last_util */
 
-/* end boehm-rps/util.c */
+/****************
+ **                           for GNU Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2" ;;
+ ** End: ;;
+ ****************/
+
+/* end of file boehm-rps/util.c */

@@ -785,4 +785,11 @@ bprs_set_nth_elem (const Bprs_Set *pset, int n)
   return NULL;
 }				/* end bprs_set_nth_elem */
 
-/* end boehm-rps/compo.c */
+/****************
+ **                           for GNU Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2" ;;
+ ** End: ;;
+ ****************/
+
+/* end of file boehm-rps/compo.c */

@@ -202,4 +202,11 @@ bprs_load_file (const char *name, FILE *fil)
   while (readsiz > 0 && !feof (fil));
 }				/* end bprs_load_file */
 
+/****************
+ **                           for GNU Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2" ;;
+ ** End: ;;
+ ****************/
+
 ////////// end of file boehm-rps/load.c

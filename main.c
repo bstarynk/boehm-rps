@@ -449,4 +449,11 @@ bprs_last_main (void)
   asm volatile ("nop; nop; nop; nop");
 }				/* end bprs_last_main */
 
-  ///// end of file boehm-rps/main.c (on github.com/bstarynk)
+/****************
+ **                           for GNU Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j2" ;;
+ ** End: ;;
+ ****************/
+
+///// end of file boehm-rps/main.c (on github.com/bstarynk)
