@@ -115,6 +115,8 @@ _bprs_process_progargs (int argc, char **argv)
 		    loopcnt, argc, bprs_shortgit);
       argcod = getopt_long (argc, argv, "vVHL:P:R:O:",	/// optix may change
 			    _bprs_options, &optix);
+      if (argcod < 0)
+	return;
       switch (argcod)
 	{
 	case 'v':
@@ -321,12 +323,13 @@ bprs_dlsym (const char *name)
       BPRS_WARNING ("invalid symbol %s to dlsym", name);
       return NULL;
     }
-  void* ad= dlsym (_bprs_proghdl, name);
-  if (!ad) {
-    BPRS_WARNING("missing symbol %s in %s (git %s) - %s",
-		 name, _bprs_argv[0], bprs_shortgit, dlerror());
-    return NULL;
-  }
+  void *ad = dlsym (_bprs_proghdl, name);
+  if (!ad)
+    {
+      BPRS_WARNING ("missing symbol %s in %s (git %s) - %s",
+		    name, _bprs_argv[0], bprs_shortgit, dlerror ());
+      return NULL;
+    }
   return ad;
 }				/* end bprs_dlsym */
 
