@@ -256,7 +256,7 @@ bprs_executable (void)
 const char *
 bprs_host (void)
 {
-  assert (_bprs_hostname && _bprs_hostname[0]);
+  assert (_bprs_hostname[0]);
   return _bprs_hostname;
 }				/* end bprs_host */
 
@@ -321,7 +321,13 @@ bprs_dlsym (const char *name)
       BPRS_WARNING ("invalid symbol %s to dlsym", name);
       return NULL;
     }
-  return dlsym (_bprs_proghdl, name);
+  void* ad= dlsym (_bprs_proghdl, name);
+  if (!ad) {
+    BPRS_WARNING("missing symbol %s in %s (git %s) - %s",
+		 name, _bprs_argv[0], bprs_shortgit, dlerror());
+    return NULL;
+  }
+  return ad;
 }				/* end bprs_dlsym */
 
 Bprs_Kind
