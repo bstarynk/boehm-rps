@@ -1,9 +1,11 @@
 /****************************************************************
- * file boehm-rps/compo.c
+ * file boehm-rps/load.c
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Description: This file is part of the Reflective Persistent System
  *      (Boehm variant), with functions for composite values
+ *
+ * It might be tested by running the do-load-boehmrps.sh script
  *
  * Author(s): Basile Starynkevitch, 92340 Bourg-la-Reine, France
  *      <basile@starynkevitch.net>
@@ -41,6 +43,7 @@ Bprs_Loaded_File *
 bprs_open_load_file (const char *path)
 {
   Bprs_Loaded_File *res = NULL;
+  ssize_t linlen = 0;
   if (!path || !path[0])
     BPRS_FATAL ("invalid path to bprs_open_load_file");
   res = GC_MALLOC (sizeof (*res));
@@ -59,22 +62,25 @@ bprs_open_load_file (const char *path)
     free (repath);
   }
   assert (res->ldf_path);
-  ssize_t linlen =
-    getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file);
-  if (linlen > INT_MAX / 4)
-    BPRS_FATAL ("too long %ld first line in %s", (long) linlen, path);
-  res->ldf_linelen = (int) linlen;
+  const size_t inibufsiz = 80;
+  res->ldf_linbuf = malloc (inibufsiz);
+  if (!res->ldf_linbuf)
+    BPRS_FATAL
+      ("failed to malloc linbuf of %d bytes in bprs_open_load_file %s",
+       (int) inibufsiz, path);
+  memset (res->ldf_linbuf, 0, inibufsiz);
+  res->ldf_bufsiz = inibufsiz;
   /// find first a line having  "Boehm-Rps-Store"
   while ((linlen =
 	  getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file)) > 0)
     {
       res->ldf_lineno++;
-      if (strstr (res->ldf_linbuf, BPRS_MAGIC_STRING))
-	break;
-      if (linlen > INT_MAX / 4)
-	BPRS_FATAL ("too long %ld  line#%d in %s",
+      if (linlen > INT_MAX / 8)
+	BPRS_FATAL ("too long %ld bytes line#%d in %s",
 		    (long) linlen, res->ldf_lineno, res->ldf_path);
       res->ldf_linelen = (int) linlen;
+      if (strstr (res->ldf_linbuf, BPRS_MAGIC_STRING))
+	break;
     };
   if (feof (res->ldf_file))
     BPRS_FATAL ("no line with magic %s in load file %s",
