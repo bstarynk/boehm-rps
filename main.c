@@ -256,6 +256,7 @@ bprs_executable (void)
 const char *
 bprs_host (void)
 {
+  assert (_bprs_hostname && _bprs_hostname[0]);
   return _bprs_hostname;
 }				/* end bprs_host */
 
