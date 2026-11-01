@@ -17,7 +17,7 @@ static const char _bprs_util_shortgit[] = BPRS_SHORTGIT;
 
 
 static const char _bprs_b36_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-#define BPRS_INT_MAGIC 68140917	/* 0x40fbf75 */
+#define BPRS_INT_MAGIC 68140917 /* 0x40fbf75 */
 #define BPRS_MASK_INT 0x7fef
 struct bprs_int_st
 {
@@ -27,7 +27,7 @@ struct bprs_int_st
   int64_t i_val;
 };
 
-#define BPRS_DOUBLE_MAGIC 171454729	/* 0xa383109 */
+#define BPRS_DOUBLE_MAGIC 171454729     /* 0xa383109 */
 #define BPRS_MASK_DOUBLE 0xffff
 struct bprs_double_st
 {
@@ -38,7 +38,7 @@ struct bprs_double_st
 };
 
 
-#define BPRS_STRING_MAGIC 654689243	/* 0x2705c3db */
+#define BPRS_STRING_MAGIC 654689243     /* 0x2705c3db */
 #define BPRS_MASK_STRING 0x3ffd
 struct bprs_string_st
 {
@@ -58,7 +58,7 @@ bprs_shortgit_util (void)
 {
   assert ((char *) bprs_shortgit_util < (char *) bprs_last_util);
   return _bprs_util_shortgit;
-}				/* end bprs_shortgit_util */
+}                               /* end bprs_shortgit_util */
 
 /// contributed by Bernard Schoenacker
 bool
@@ -85,7 +85,7 @@ bprs_uint64_to_b36 (uint64_t val, char *out, int bufsiz)
 
   out[n] = '\0';
   return true;
-}				/* end bprs_uint64_to_b36 */
+}                               /* end bprs_uint64_to_b36 */
 
 uint64_t
 bprs_b36_to_uint64 (const char *s, const char **pend, bool *pok)
@@ -98,9 +98,9 @@ bprs_b36_to_uint64 (const char *s, const char **pend, bool *pok)
   if (end && end > s)
     {
       if (pend)
-	*pend = end;
+        *pend = end;
       if (pok)
-	*pok = true;
+        *pok = true;
       return res;
     };
 fail:
@@ -109,7 +109,7 @@ fail:
   if (pend)
     *pend = s;
   return 0;
-}				/* end bprs_b36_to_uint64_t */
+}                               /* end bprs_b36_to_uint64_t */
 
 Bprs_Int *
 bprs_make_int (int64_t i)
@@ -120,7 +120,7 @@ bprs_make_int (int64_t i)
   p->i_magic = BPRS_INT_MAGIC;
   p->i_val = i;
   return p;
-}				/* end bprs_make_int */
+}                               /* end bprs_make_int */
 
 
 
@@ -135,13 +135,13 @@ bprs_get_int (const Bprs_Int *p, bool *pok)
       || p->i_gap != ((intptr_t) p & BPRS_MASK_INT))
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return 0;
     };
   if (pok)
     *pok = true;
   return p->i_val;
-}				/* end bprs_get_int */
+}                               /* end bprs_get_int */
 
 uint32_t
 bprs_hash_int (const Bprs_Int *p, bool *pok)
@@ -150,7 +150,7 @@ bprs_hash_int (const Bprs_Int *p, bool *pok)
       || p->i_magic != BPRS_INT_MAGIC || p->i_gap != ((intptr_t) p & 0xffff))
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return 0;
     };
   if (pok)
@@ -160,7 +160,7 @@ bprs_hash_int (const Bprs_Int *p, bool *pok)
     h = ((p->i_val % 45233) & 0xfffff) + 2;
   assert (h != 0);
   return h;
-}				/* end bprs_hash_int */
+}                               /* end bprs_hash_int */
 
 
 Bprs_Double *
@@ -172,7 +172,7 @@ bprs_make_double (double d)
   p->d_magic = BPRS_DOUBLE_MAGIC;
   p->d_val = d;
   return p;
-}				/* end bprs_make_double */
+}                               /* end bprs_make_double */
 
 double
 bprs_get_double (const Bprs_Double *p, bool *pok)
@@ -182,13 +182,13 @@ bprs_get_double (const Bprs_Double *p, bool *pok)
       || p->d_gap != ((intptr_t) p & BPRS_MASK_DOUBLE))
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return __builtin_nan ("");
     };
   if (pok)
     *pok = true;
   return p->d_val;
-}				/* end bprs_get_double */
+}                               /* end bprs_get_double */
 
 uint32_t
 bprs_hash_double (const Bprs_Double *p, bool *pok)
@@ -199,7 +199,7 @@ bprs_hash_double (const Bprs_Double *p, bool *pok)
       || p->d_gap != ((intptr_t) p & BPRS_MASK_DOUBLE))
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return 0;
     };
   if (pok)
@@ -212,7 +212,7 @@ bprs_hash_double (const Bprs_Double *p, bool *pok)
   if (h == 0)
     h = 17;
   return h;
-}				/* end bprs_hash_double */
+}                               /* end bprs_hash_double */
 
 uint32_t
 bprs_hash_c_string (const char *s)
@@ -230,13 +230,13 @@ bprs_hash_c_string (const char *s)
       ucs4_t uc = 0;
       int l = u8_mbtoucr (&uc, us, s + bytlen - (char *) us);
       if (l < 0)
-	BPRS_FATAL ("corrupted UTF8 string %s", s);
+        BPRS_FATAL ("corrupted UTF8 string %s", s);
       cnt++;
       us += l;
       if (cnt % 2 == 0)
-	h = ((h * 443) ^ (uc * 347)) + (cnt & 0xff);
+        h = ((h * 443) ^ (uc * 347)) + (cnt & 0xff);
       else
-	h = ((h * 311) ^ (uc * 359 + cnt % 17));
+        h = ((h * 311) ^ (uc * 359 + cnt % 17));
     };
   if (h == 0)
     h = bytlen + 1;
@@ -259,7 +259,7 @@ bprs_make_string (const char *s)
   utflen = u8_strlen ((uint8_t *) s);
   if (bytlen > INT_MAX / 4 || utflen > INT_MAX / 4)
     BPRS_FATAL ("too long string of %ud bytes and %ud UTF8 chars",
-		bytlen, utflen);
+                bytlen, utflen);
   size_t alsiz = ((sizeof (Bprs_String) + bytlen + 2) | 0xf) + 1;
   Bprs_String *ps = GC_MALLOC_ATOMIC (alsiz);
   ps->s_kind = BprsKind_String;
@@ -270,7 +270,7 @@ bprs_make_string (const char *s)
   ps->s_utflen = utflen;
   strncpy (ps->s_val, s, bytlen);
   return ps;
-}				/* end bprs_make_string */
+}                               /* end bprs_make_string */
 
 const char *
 bprs_get_string (const Bprs_String *ps, bool *pok)
@@ -281,14 +281,14 @@ bprs_get_string (const Bprs_String *ps, bool *pok)
       || ps->s_magic != BPRS_STRING_MAGIC)
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return NULL;
     };
   assert (ps->s_hash == bprs_hash_c_string (ps->s_val));
   if (pok)
     *pok = true;
   return ps->s_val;
-}				/* end bprs_get_string */
+}                               /* end bprs_get_string */
 
 uint32_t
 bprs_hash_string (const Bprs_String *ps, bool *pok)
@@ -299,14 +299,14 @@ bprs_hash_string (const Bprs_String *ps, bool *pok)
       || ps->s_magic != BPRS_STRING_MAGIC)
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return 0;
     };
   assert (ps->s_hash == bprs_hash_c_string (ps->s_val));
   if (pok)
     *pok = true;
   return ps->s_hash;
-}				/* end bprs_hash_string */
+}                               /* end bprs_hash_string */
 
 uint32_t
 bprs_byte_len_string (const Bprs_String *ps, bool *pok)
@@ -317,13 +317,13 @@ bprs_byte_len_string (const Bprs_String *ps, bool *pok)
       || ps->s_magic != BPRS_STRING_MAGIC)
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return 0;
     };
   if (pok)
     *pok = false;
   return ps->s_bytlen;
-}				/* end bprs_byte_len_string */
+}                               /* end bprs_byte_len_string */
 
 
 uint32_t
@@ -335,18 +335,18 @@ bprs_utf_len_string (const Bprs_String *ps, bool *pok)
       || ps->s_magic != BPRS_STRING_MAGIC)
     {
       if (pok)
-	*pok = false;
+        *pok = false;
       return 0;
     };
   if (pok)
     *pok = false;
   return ps->s_utflen;
-}				/* end bprs_utf_len_string */
+}                               /* end bprs_utf_len_string */
 
 
 void
 bprs_warning_at (const char *srcfil, int lin, const char *fun,
-		 const char *fmt, ...)
+                 const char *fmt, ...)
 {
   va_list arg;
   fprintf (stderr, "%s:%d <%s> WARNING\n", srcfil, lin, fun);
@@ -355,12 +355,12 @@ bprs_warning_at (const char *srcfil, int lin, const char *fun,
   va_end (arg);
   fputc ('\n', stderr);
   fflush (stderr);
-  fflush (NULL);		/* can be a GDB breakpoint */
-}				/* end bprs_warning_at */
+  fflush (NULL);                /* can be a GDB breakpoint */
+}                               /* end bprs_warning_at */
 
 void
 bprs_fatal_at (const char *srcfil, int lin, const char *fun,
-	       const char *fmt, ...)
+               const char *fmt, ...)
 {
   va_list args;
   va_start (args, fmt);
@@ -370,15 +370,15 @@ bprs_fatal_at (const char *srcfil, int lin, const char *fun,
   fputc ('\n', stderr);
   fflush (stderr);
   va_end (args);
-  fflush (NULL);		/* can be a GDB breakpoint */
+  fflush (NULL);                /* can be a GDB breakpoint */
   abort ();
-}				/* end bprs_fatal_at */
+}                               /* end bprs_fatal_at */
 
 
 void
 bprs_last_util (void)
 {
-}				/* end bprs_last_util */
+}                               /* end bprs_last_util */
 
 /****************
  **                           for GNU Emacs...
