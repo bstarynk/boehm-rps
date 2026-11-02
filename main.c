@@ -472,7 +472,7 @@ reallocarray (void *p, size_t nbcomp, size_t elemsize)
 
 
 
-
+/// This function is useless, except its adress in some asserts
 void
 bprs_last_main (void)
 {
