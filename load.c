@@ -21,19 +21,19 @@ const char *
 bprs_shortgit_load (void)
 {
   return _bprs_load_shortgit;
-}                               /* end bprs_shortgit_load */
+}				/* end bprs_shortgit_load */
 
 
-#define BPRS_LOAD_MAGIC 0x382237B       //58860411
-struct bprs_loaded_file_st      /* ie Bprs_Loaded_File */
+#define BPRS_LOAD_MAGIC 0x382237B	//58860411
+struct bprs_loaded_file_st	/* ie Bprs_Loaded_File */
 {
-  unsigned ldf_magic;           /* should be BPRS_LOAD_MAGIC */
-  unsigned ldf_lineno;          /* line number */
-  unsigned ldf_linoff;          /* current offset in line */
+  unsigned ldf_magic;		/* should be BPRS_LOAD_MAGIC */
+  unsigned ldf_lineno;		/* line number */
+  unsigned ldf_linoff;		/* current offset in line */
   int ldf_linelen;
-  char *ldf_linbuf;             /* malloced line buffer, thru getline */
-  size_t ldf_bufsiz;            /* current size of ldf_linbuf */
-  const char *ldf_path;         /* if starts with ! or | use popen */
+  char *ldf_linbuf;		/* malloced line buffer, thru getline */
+  size_t ldf_bufsiz;		/* current size of ldf_linbuf */
+  const char *ldf_path;		/* if starts with ! or | use popen */
   FILE *ldf_file;
   void *ldf_data;
   void *ldf_xtra;
@@ -72,36 +72,36 @@ bprs_open_load_file (const char *path)
   res->ldf_bufsiz = inibufsiz;
   /// find first a line having  "Boehm-Rps-Store"
   while ((linlen =
-          getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file)) > 0)
+	  getline (&res->ldf_linbuf, &res->ldf_bufsiz, res->ldf_file)) > 0)
     {
       res->ldf_lineno++;
       if (linlen > INT_MAX / 8)
-        BPRS_FATAL ("too long %ld bytes line#%d in %s",
-                    (long) linlen, res->ldf_lineno, res->ldf_path);
+	BPRS_FATAL ("too long %ld bytes line#%d in %s",
+		    (long) linlen, res->ldf_lineno, res->ldf_path);
       res->ldf_linelen = (int) linlen;
       if (strstr (res->ldf_linbuf, BPRS_MAGIC_STRING))
-        break;
+	break;
     };
   if (feof (res->ldf_file))
     BPRS_FATAL ("no line with magic %s in load file %s",
-                BPRS_MAGIC_STRING, res->ldf_path);
+		BPRS_MAGIC_STRING, res->ldf_path);
   return res;
-}                               /* end bprs_open_load_file */
+}				/* end bprs_open_load_file */
 
 void
 bprs_process_loaded_file (Bprs_Loaded_File *ld)
 {
   if (!ld || ld->ldf_magic != BPRS_LOAD_MAGIC)
     BPRS_FATAL ("invalid argument @%p to bprs_process_loaded_file",
-                (void *) ld);
+		(void *) ld);
   if (!ld->ldf_linbuf || !ld->ldf_file || !ld->ldf_path)
     BPRS_FATAL ("corruption in bprs_process_loaded_file ld@%p", ld);
   if (bprs_verbose)
     printf ("%s process loaded file %s:%d\n",
-            brps_progargv (0), ld->ldf_path, ld->ldf_lineno);
+	    brps_progargv (0), ld->ldf_path, ld->ldf_lineno);
 #warning incomplete bprs_process_loaded_file
   BPRS_WARNING ("incomplete bprs_process_loaded_file %s", ld->ldf_path);
-}                               /* end bprs_process_loaded_file */
+}				/* end bprs_process_loaded_file */
 
 #warning we could need bprs_load_object_content
 /* we might need a struct packing load data */
@@ -119,11 +119,11 @@ bprs_load_file (const char *name, FILE *fil)
     {
       linecnt++;
       if (strstr (linebuf, BPRS_MAGIC_STRING))
-        break;
+	break;
     };
   if (feof (fil))
     BPRS_FATAL ("loaded file %s:%d without magic string %s\n",
-                name, linecnt, BPRS_MAGIC_STRING);
+		name, linecnt, BPRS_MAGIC_STRING);
   do
     {
       uint32_t hi = 0;
@@ -141,72 +141,72 @@ bprs_load_file (const char *name, FILE *fil)
       memset (bufright, 0, sizeof (bufright));
       pc = linebuf;
       if (sscanf (pc, " @obj hi %d lo %ld %n",
-                  &hi, &lo, &pos) >= 2 && pos > 0)
-        {
-          uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
-          uint32_t hread = 0;
-          int posbis = 0;
-          if (hx == 0)
-            BPRS_FATAL ("in %s:%d invalid hi=%d lo=%ld [%s:%d]",
-                        name, linecnt, hi, lo, __FILE__, __LINE__);
-          pc += pos;
-          if (sscanf (pc, " hash %d %n", &hread, &posbis) > 0 && posbis > 0)
-            {
-              if (hread != hx)
-                BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
-                            "bad hash %d (expecting %d)",
-                            name, linecnt, hi, lo, hread, hx);
-              pc += posbis;
-            }
-          pobj = bprs_object_find (hi, lo);
-          if (!pobj)
-            {
-              bool ok = false;
-              pobj = bprs_object_load (fil, hi, lo);
-              if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
-                BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
-                            "bad hash %d",
-                            name, linecnt, hi, lo,
-                            bprs_hash_object (pobj, NULL));
-            }
-          else
-            {
-              BPRS_WARNING ("in %s:%d already existing object hi=%d lo=%ld",
-                            name, linecnt, hi, lo);
-            }
-        }                       /* end scanf @obj */
+		  &hi, &lo, &pos) >= 2 && pos > 0)
+	{
+	  uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
+	  uint32_t hread = 0;
+	  int posbis = 0;
+	  if (hx == 0)
+	    BPRS_FATAL ("in %s:%d invalid hi=%d lo=%ld [%s:%d]",
+			name, linecnt, hi, lo, __FILE__, __LINE__);
+	  pc += pos;
+	  if (sscanf (pc, " hash %d %n", &hread, &posbis) > 0 && posbis > 0)
+	    {
+	      if (hread != hx)
+		BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			    "bad hash %d (expecting %d)",
+			    name, linecnt, hi, lo, hread, hx);
+	      pc += posbis;
+	    }
+	  pobj = bprs_object_find (hi, lo);
+	  if (!pobj)
+	    {
+	      bool ok = false;
+	      pobj = bprs_object_load (fil, hi, lo);
+	      if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
+		BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			    "bad hash %d",
+			    name, linecnt, hi, lo,
+			    bprs_hash_object (pobj, NULL));
+	    }
+	  else
+	    {
+	      BPRS_WARNING ("in %s:%d already existing object hi=%d lo=%ld",
+			    name, linecnt, hi, lo);
+	    }
+	}			/* end scanf @obj */
       else if (sscanf (pc, " @Ob_%32[0-9A-Z]_%40[0-9A-Z]%n",
-                       bufleft, bufright, &pos) >= 2 && pos > 0)
-        {
-          bool okhi = false, oklo = false, ok = false;
-          const char *endleft = NULL;
-          const char *endright = NULL;
-          hi = (uint32_t) bprs_b36_to_uint64 (bufleft, &endleft, &okhi);
-          if (!endleft)
-            okhi = false;
-          lo = bprs_b36_to_uint64 (bufright, &endright, &oklo);
-          if (!endright)
-            oklo = false;
-          pc += pos;
-          uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
-          if (!hx)
-            BPRS_FATAL ("%s:%d invalid hi=%lu lo=%lu", name, linecnt,
-                        (uint64_t) hi, (uint64_t) lo);
-          pobj = bprs_object_load (fil, hi, lo);
-          if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
-            BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
-                        "bad hash %d",
-                        name, linecnt, hi, lo, bprs_hash_object (pobj, NULL));
+		       bufleft, bufright, &pos) >= 2 && pos > 0)
+	{
+	  bool okhi = false, oklo = false, ok = false;
+	  const char *endleft = NULL;
+	  const char *endright = NULL;
+	  hi = (uint32_t) bprs_b36_to_uint64 (bufleft, &endleft, &okhi);
+	  if (!endleft)
+	    okhi = false;
+	  lo = bprs_b36_to_uint64 (bufright, &endright, &oklo);
+	  if (!endright)
+	    oklo = false;
+	  pc += pos;
+	  uint32_t hx = bprs_hash_for_object_hi_lo (hi, lo);
+	  if (!hx)
+	    BPRS_FATAL ("%s:%d invalid hi=%lu lo=%lu", name, linecnt,
+			(uint64_t) hi, (uint64_t) lo);
+	  pobj = bprs_object_load (fil, hi, lo);
+	  if (bprs_value_kind (pobj) != BprsKind_Object || !ok)
+	    BPRS_FATAL ("in %s:%d  for object hi=%d lo=%ld "
+			"bad hash %d",
+			name, linecnt, hi, lo, bprs_hash_object (pobj, NULL));
 
-          BPRS_FATAL ("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
-                      name, linecnt, bufleft, bufright, __FILE__, __LINE__);
-        } /* end sscanf @Ob_ */
+	  BPRS_FATAL ("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
+		      name, linecnt, bufleft, bufright, __FILE__, __LINE__);
+	}			/* end sscanf @Ob_ */
 #warning bprs_load_file incomplete
       BPRS_FATAL ("incomplete bpr_load_file [%s:%d] at loaded file %s:%d",
-                  __FILE__, __LINE__, name, linecnt);
+		  __FILE__, __LINE__, name, linecnt);
     }
   while (readsiz > 0 && !feof (fil));
-}                               /* end bprs_load_file */
+}				/* end bprs_load_file */
 
 /****************
  **                           for GNU Emacs...
