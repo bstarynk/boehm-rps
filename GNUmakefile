@@ -3,15 +3,17 @@
 ## Author(s):
 ##      Basile STARYNKEVITCH, 92340 Bourg-la-Reine, France,
 ##                    <basile@starynkevitch.net>
-CC = gcc
+CC = gcc			#the Gnu C compiler
+CARBURETTA = carburetta 	#parser generator from carburetta.com
 INDENT ?= indent
 ### une fois que le logiciel fonctionne et a été débogué faire make clean
 ### puis make OPTIM=-O1
 ### once the software is debugged so make clean then make OPTIM=-O1
 OPTIM ?= -Og
 CFLAGS += -Wall -Wextra -Wmissing-prototypes -std=gnu17 $(OPTIM) -g
-CFLAGS += $(shell pkg-config --cflags bdw-gc)
-LDFLAGS += $(shell pkg-config --libs bdw-gc) 
+PACKAGEDLIBS= bdw-gc readline
+CFLAGS += $(shell pkg-config --cflags $(PACKAGEDLIBS))
+LDFLAGS += $(shell pkg-config --libs $(PACKAGEDLIBS)) 
 HUMAN_HEADER= boehmrps.h
 HUMAN_C_FILES = $(wildcard [a-z]*.c)
 HUMAN_OBJ_FILES = $(patsubst %.c, obj/%.o, $(HUMAN_C_FILES))
@@ -34,7 +36,7 @@ obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 %.i: %.c $(HUMAN_HEADER)  | GNUmakefile get-short-git.sh
 	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
 
-rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o | $(HUMAN_HEADER) GNUmakefile
+rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
 	/bin/mv -vf _list_.c _list_.c~
@@ -55,4 +57,7 @@ _list_.c: GNUmakefile
 	printf "const char* bprs_generated_md5[]= {\n" >> $@
 	for f in $(GENERATED_C_FILES); do printf "  \"%s\",\n" $$(md5sum $$f</dev/null); done >> $@
 	echo "  (const char*)0 };\n" >> $@
+
+_carbparse_.c: carbparse.cbrt | GNUmakefile
+	$(CARBURETTA) $^  -c > $@
 

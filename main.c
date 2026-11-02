@@ -265,13 +265,14 @@ bprs_host (void)
 int
 main (int argc, char **argv)
 {
-  GC_INIT ();
+  GC_INIT (); /* initialize Boehm garbage collector */
   memset (_bprs_hostname, 0, sizeof (_bprs_hostname));
   _bprs_argc = argc;
   _bprs_argv = argv;
   if (gethostname (_bprs_hostname, sizeof (_bprs_hostname) - 1))
     BPRS_FATAL ("%s: gethostname failed git %s (%s)",
                 argv[0], _bprs_main_shortgit, strerror (errno));
+  rl_initialize (); 		/* initialize readline library */
   openlog (argv[0], LOG_CONS | LOG_PID, LOG_USER);
   _bprs_proghdl = dlopen (NULL, RTLD_NOW);
   if (!_bprs_proghdl)

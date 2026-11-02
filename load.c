@@ -174,7 +174,7 @@ bprs_load_file (const char *name, FILE *fil)
               BPRS_WARNING ("in %s:%d already existing object hi=%d lo=%ld",
                             name, linecnt, hi, lo);
             }
-        }                       /* end @obj */
+        }                       /* end scanf @obj */
       else if (sscanf (pc, " @Ob_%32[0-9A-Z]_%40[0-9A-Z]%n",
                        bufleft, bufright, &pos) >= 2 && pos > 0)
         {
@@ -200,7 +200,7 @@ bprs_load_file (const char *name, FILE *fil)
 
           BPRS_FATAL ("%s:%d missing code bufleft=%s bufright=%s (%s:%d)",
                       name, linecnt, bufleft, bufright, __FILE__, __LINE__);
-        }
+        } /* end sscanf @Ob_ */
 #warning bprs_load_file incomplete
       BPRS_FATAL ("incomplete bpr_load_file [%s:%d] at loaded file %s:%d",
                   __FILE__, __LINE__, name, linecnt);

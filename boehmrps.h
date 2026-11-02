@@ -12,13 +12,14 @@
 #define BOEHMRPS_INCLUDED 1
 #define _GNU_SOURCE 1
 #include <stdio.h>
+#include <gc.h>
+#include <gc/gc_pthread_redirects.h>
 #include <stdio_ext.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <dlfcn.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <gc.h>
 #include <assert.h>
 #include <math.h>
 #include <string.h>
@@ -30,6 +31,7 @@
 #include <getopt.h>
 #include <pthread.h>
 #include <errno.h>
+#include <readline/readline.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT

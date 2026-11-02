@@ -1,0 +1,21 @@
+// file boehm-rps/carbparse.cbrt
+#include "boehmrps.h"
+
+struct brps_carbparse_stack;
+
+%header%
+struct brps_carbparse_stack;
+#pragma message "header part of carbparse.cbrt in boehm-rps"
+extern void brps_carbparse_stack_init(struct bprs_carbparse_stack *stack);
+extern void brps_carbparse_stack_cleanup(struct bprs_carbparse_stack *stack);
+extern int brps_carbparse_lex(struct brps_carbparse_stack *stack);
+extern int brps_carbparse_scan(struct brps_carbparse_stack *stack);
+extern int brps_carbparse_parse(struct brps_carbparse_stack *stack, int sym);
+%%
+%prefix brps_carbparse_
+
+
+%scanner%
+
+
+: [\ \t\r\f]+; 			/*skip whitespace*/
