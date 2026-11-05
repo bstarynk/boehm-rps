@@ -51,6 +51,15 @@ enum bprs_kind_en
   BprsKind__Last
 };
 typedef enum bprs_kind_en Bprs_Kind;
+
+struct bprs_value_st
+{
+  const Bprs_Kind v_kind;
+  const int16_t v_gap;
+  const int32_t v_magic;
+  const char v_bytes[];
+};
+typedef struct bprs_value_st Bprs_Value;
 typedef struct bprs_int_st Bprs_Int;
 typedef struct bprs_double_st Bprs_Double;
 typedef struct bprs_string_st Bprs_String;
@@ -58,6 +67,97 @@ typedef struct bprs_tuple_st Bprs_Tuple;
 typedef struct bprs_set_st Bprs_Set;
 typedef struct bprs_object_st Bprs_Object;
 
+#define BPRS_INT_MAGIC 68140917	/* 0x40fbf75 */
+#define BPRS_MASK_INT 0x7fef
+struct bprs_int_st
+{
+  Bprs_Kind i_kind;
+  int16_t i_gap;
+  int32_t i_magic;
+  int64_t i_val;
+};
+
+
+#define BPRS_DOUBLE_MAGIC 171454729	/* 0xa383109 */
+#define BPRS_MASK_DOUBLE 0xffff
+struct bprs_double_st
+{
+  Bprs_Kind d_kind;
+  int16_t d_gap;
+  int32_t d_magic;
+  double d_val;
+};
+
+
+#define BPRS_STRING_MAGIC 654689243	/* 0x2705c3db */
+#define BPRS_MASK_STRING 0x3ffd
+struct bprs_string_st
+{
+  Bprs_Kind s_kind;
+  int16_t s_gap;
+  int32_t s_magic;
+  uint32_t s_hash;
+  uint32_t s_bytlen;
+  uint32_t s_utflen;
+  char s_val[];
+};
+
+#define BPRS_TUPLE_MAGIC 39736559	/* 0x25e54ef */
+#define BPRS_MASK_TUPLE 0xf7fe
+struct bprs_tuple_st
+{
+  Bprs_Kind tu_kind;
+  int16_t tu_gap;
+  int32_t tu_magic;
+  uint32_t tu_hash;
+  uint32_t tu_size;
+  const void *tu_val[];
+};
+
+
+#define BPRS_SET_MAGIC 80044785	/* 0x4c562f1 */
+#define BPRS_MASK_SET 0xfdfe
+struct bprs_set_st
+{
+  Bprs_Kind set_kind;
+  uint16_t set_gap;
+  uint32_t set_magic;
+  uint32_t set_hash;
+  uint32_t set_size;
+  const Bprs_Object *set_elem[];
+};
+
+
+struct bprs_attrpair_st
+{
+  Bprs_Object *at_obj;
+  void *at_val;
+};
+
+struct bprs_object_st
+{
+  Bprs_Kind ob_kind;
+  uint16_t ob_gap;
+  uint32_t ob_magic;
+  uint32_t ob_index;		/* index in _bprs_objhash_arr */
+  uint32_t ob_hash;
+  uint32_t ob_nbcomp;
+  uint32_t ob_nbattr;
+  uint32_t ob_sizcomp;
+  uint32_t ob_sizattr;
+  uint32_t ob_hi;
+  uint64_t ob_lo;
+  char ob_prefixrout[8];
+  void *ob_routptr;
+  pthread_mutex_t ob_mtx;
+  struct bprs_attrpair_st *ob_attrs;
+  void **ob_comps;
+  void *ob_data;
+  void *ob_xtra;
+};
+#define BPRS_OBJHASH_EMPTY (Bprs_Object*)0x7
+#define BPRS_OBJECT_MAGIC  943520863	/*0x383cfc5f */
+#define BPRS_MASK_OBJECT 0xf5fc
 extern void bprs_initialize_objects (void);
 extern bool bprs_extract_object_id (const Bprs_Object *pob,
 				    uint32_t *phi, uint64_t *plo);
@@ -120,13 +220,24 @@ extern uint64_t bprs_b36_to_uint64 (const char *s, const char **end,
 				    bool *pok);
 extern bool bprs_uint64_to_b36 (uint64_t i, char *buf, int bufsiz);
 
+/// checked conversion routines (returns NULL on failure)
+extern const Bprs_Value *bprs_boxed_int_as_value (const Bprs_Int *);
+extern const Bprs_Int *bprs_value_to_boxed_int (const Bprs_Value *);
+extern const Bprs_Value *bprs_boxed_double_as_value (const Bprs_Double *);
+extern const Bprs_Double *bprs_value_to_boxed_double (const Bprs_Value *);
+extern const Bprs_Value *bprs_boxed_string_as_value (const Bprs_String *);
+extern const Bprs_String *bprs_value_to_boxed_string (const Bprs_Value *);
+
+
+
+
 //// in compo.c
 extern const char *bprs_shortgit_compo (void);
 extern Bprs_Tuple *bprs_tuple_make_arr (const void **arr, unsigned siz);
 extern Bprs_Tuple *bprs_tuple_make_args (unsigned siz, ...);
-extern uint32_t bprs_hash_tuple (const Bprs_Tuple * tup, bool *pok);
-extern unsigned bprs_tuple_length (const Bprs_Tuple * rup);
-extern const void *bprs_tuple_nth (const Bprs_Tuple * tup, int rk);
+extern uint32_t bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok);
+extern unsigned bprs_tuple_length (const Bprs_Tuple *rup);
+extern const void *bprs_tuple_nth (const Bprs_Tuple *tup, int rk);
 extern uint32_t bprs_hash_object (const Bprs_Object *pob, bool *pok);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
