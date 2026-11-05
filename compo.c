@@ -42,19 +42,6 @@ bprs_shortgit_compo (void)
   return _bprs_compo_shortgit;
 }				/* end bprs_shortgit_compo */
 
-#define BPRS_TUPLE_MAGIC 39736559	/* 0x25e54ef */
-#define BPRS_MASK_TUPLE 0xf7fe
-struct bprs_tuple_st
-{
-  Bprs_Kind tu_kind;
-  int16_t tu_gap;
-  int32_t tu_magic;
-  uint32_t tu_hash;
-  uint32_t tu_size;
-  const void *tu_val[];
-};
-
-
 Bprs_Tuple *
 bprs_tuple_make_arr (const void **arr, unsigned siz)
 {
@@ -183,51 +170,8 @@ bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok)
   return tup->tu_hash;
 }				/* end bprs_hash_tuple */
 
-#define BPRS_SET_MAGIC 80044785	/* 0x4c562f1 */
-#define BPRS_MASK_SET 0xfdfe
-struct bprs_set_st
-{
-  Bprs_Kind set_kind;
-  uint16_t set_gap;
-  uint32_t set_magic;
-  uint32_t set_hash;
-  uint32_t set_size;
-  const Bprs_Object *set_elem[];
-};
-
-
-struct bprs_attrpair_st
-{
-  Bprs_Object *at_obj;
-  void *at_val;
-};
-
-struct bprs_object_st
-{
-  Bprs_Kind ob_kind;
-  uint16_t ob_gap;
-  uint32_t ob_magic;
-  uint32_t ob_index;		/* index in _bprs_objhash_arr */
-  uint32_t ob_hash;
-  uint32_t ob_nbcomp;
-  uint32_t ob_nbattr;
-  uint32_t ob_sizcomp;
-  uint32_t ob_sizattr;
-  uint32_t ob_hi;
-  uint64_t ob_lo;
-  char ob_prefixrout[8];
-  void *ob_routptr;
-  pthread_mutex_t ob_mtx;
-  struct bprs_attrpair_st *ob_attrs;
-  void **ob_comps;
-  void *ob_data;
-  void *ob_xtra;
-};
 
 static Bprs_Object **_bprs_objhash_arr;
-#define BPRS_OBJHASH_EMPTY (Bprs_Object*)0x7
-#define BPRS_OBJECT_MAGIC  943520863	/*0x383cfc5f */
-#define BPRS_MASK_OBJECT 0xf5fc
 static unsigned _bprs_objhash_siz;
 static unsigned _bprs_objhash_cnt;
 static pthread_mutex_t _brps_objhash_mtx
