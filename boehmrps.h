@@ -235,6 +235,9 @@ extern const Bprs_String *bprs_value_to_boxed_string (const Bprs_Value *);
 extern const char *bprs_shortgit_compo (void);
 extern Bprs_Tuple *bprs_tuple_make_arr (const void **arr, unsigned siz);
 extern Bprs_Tuple *bprs_tuple_make_args (unsigned siz, ...);
+extern const Bprs_Value *bprs_boxed_tuple_as_value (const Bprs_Tuple *tup);
+extern const Bprs_Tuple *bprs_value_to_boxed_tuple (const Bprs_Value *val);
+
 extern uint32_t bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok);
 extern unsigned bprs_tuple_length (const Bprs_Tuple *rup);
 extern const void *bprs_tuple_nth (const Bprs_Tuple *tup, int rk);

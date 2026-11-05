@@ -125,6 +125,28 @@ bprs_tuple_make_args (unsigned siz, ...)
   return res;
 }				/* end bprs_tuple_make_args */
 
+const Bprs_Value *
+bprs_boxed_tuple_as_value (const Bprs_Tuple *tup)
+{
+  if (!tup || (uintptr_t) tup < 0x1000
+      || tup->tu_kind != BprsKind_Tuple
+      || tup->tu_magic != BPRS_TUPLE_MAGIC
+      || tup->tu_gap != ((intptr_t) tup & BPRS_MASK_TUPLE))
+    return NULL;
+  return (const Bprs_Value *) tup;
+}				/* end bprs_boxed_tuple_as_value */
+
+
+const Bprs_Tuple *
+bprs_value_to_boxed_tuple (const Bprs_Value *val)
+{
+  if (!val || (uintptr_t) val < 0x1000
+      || val->v_kind != BprsKind_Tuple
+      || val->v_magic != BPRS_TUPLE_MAGIC
+      || val->v_gap != ((intptr_t) val & BPRS_MASK_TUPLE))
+    return NULL;
+  return (const Bprs_Tuple *) val;
+}				/* end bprs_value_to_boxed_tuple */
 
 unsigned
 bprs_tuple_length (const Bprs_Tuple *tup)
