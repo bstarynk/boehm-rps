@@ -3,8 +3,8 @@
 ## Author(s):
 ##      Basile STARYNKEVITCH, 92340 Bourg-la-Reine, France,
 ##                    <basile@starynkevitch.net>
-CC = gcc			#the Gnu C compiler
-CARBURETTA = carburetta 	#parser generator from carburetta.com
+CC = gcc #the Gnu C compiler
+CARBURETTA = carburetta #parser generator from carburetta.com
 INDENT ?= indent
 ### une fois que le logiciel fonctionne et a été débogué faire make clean
 ### puis make OPTIM=-O1
@@ -30,11 +30,13 @@ indent:
 	$(INDENT) -v $(HUMAN_HEADER)
 	for f in $(HUMAN_C_FILES) ; do  $(INDENT) -v $$f; done
 
+# compile a source file to an object / compile un fichier source
 obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
-	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
+	$(CC) -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
 
+# produce a preprocessed file / produit le fichier prétraité
 %.i: %.c $(HUMAN_HEADER)  | GNUmakefile get-short-git.sh
-	$(CC) $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
+	$(CC) -UBPRS_PREPRO $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
 
 rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
@@ -58,6 +60,9 @@ _list_.c: GNUmakefile
 	for f in $(GENERATED_C_FILES); do printf "  \"%s\",\n" $$(md5sum $$f</dev/null); done >> $@
 	echo "  (const char*)0 };\n" >> $@
 
+# génère l'analyseur syntaxique / emit the paring file [carburetta.com]
 _carbparse_.c: carbparse.cbrt | GNUmakefile
-	$(CARBURETTA) $^  -c > $@
+	$(CARBURETTA) $^  -c  > $@
+	cp $@ $@%
+	$(INDENT) $@
 
