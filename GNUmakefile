@@ -70,3 +70,12 @@ _carbparse_.c: carbparse.cbrt | GNUmakefile
 	cp $@ $@%
 	$(INDENT) $@
 
+
+# génère l'analyseur syntaxique / emit the paring file [carburetta.com]
+_carbparse_nl_.c: carbparse.cbrt | GNUmakefile
+	$(CARBURETTA) $^  -c  --nolinedir > $@
+	cp $@ $@%
+	$(INDENT) $@
+
+
+### end of file / fin du fichier boehm-rps/GNUmakefile
