@@ -382,6 +382,29 @@ bprs_object_cmp (const void *left, const void *right)
 }				/* end bprs_object_cmp */
 
 
+const Bprs_Value *
+bprs_boxed_object_as_value (const Bprs_Object *obj)
+{
+  if (!obj || (uintptr_t) obj < 0x1000
+      || obj->ob_kind != BprsKind_Object
+      || obj->ob_magic != BPRS_OBJECT_MAGIC
+      || obj->ob_gap != ((intptr_t) obj & BPRS_MASK_OBJECT))
+    return NULL;
+  return (const Bprs_Value *) obj;
+}				/* end bprs_boxed_object_as_value */
+
+
+const Bprs_Object *
+bprs_value_to_boxed_object (const Bprs_Value *val)
+{
+  if (!val || (uintptr_t) val < 0x1000
+      || val->v_kind != BprsKind_Object
+      || val->v_magic != BPRS_OBJECT_MAGIC
+      || val->v_gap != ((intptr_t) val & BPRS_MASK_OBJECT))
+    return NULL;
+  return (const Bprs_Object *) val;
+}				/* end bprs_value_to_boxed_object */
+
 
 Bprs_Object *
 bprs_object_find (uint32_t idhi, uint64_t idlo)
@@ -586,6 +609,9 @@ end:
   pthread_mutex_unlock (&_brps_objhash_mtx);
   return pob;
 }				/* end bprs_object_make */
+
+
+
 
 
 Bprs_Set *

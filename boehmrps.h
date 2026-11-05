@@ -158,6 +158,10 @@ struct bprs_object_st
 #define BPRS_OBJHASH_EMPTY (Bprs_Object*)0x7
 #define BPRS_OBJECT_MAGIC  943520863	/*0x383cfc5f */
 #define BPRS_MASK_OBJECT 0xf5fc
+
+extern const Bprs_Value *bprs_boxed_object_as_value (const Bprs_Object *obj);
+extern const Bprs_Object *bprs_value_to_boxed_object (const Bprs_Value *val);
+
 extern void bprs_initialize_objects (void);
 extern bool bprs_extract_object_id (const Bprs_Object *pob,
 				    uint32_t *phi, uint64_t *plo);
@@ -241,6 +245,8 @@ extern const Bprs_Tuple *bprs_value_to_boxed_tuple (const Bprs_Value *val);
 extern uint32_t bprs_hash_tuple (const Bprs_Tuple *tup, bool *pok);
 extern unsigned bprs_tuple_length (const Bprs_Tuple *rup);
 extern const void *bprs_tuple_nth (const Bprs_Tuple *tup, int rk);
+
+
 extern uint32_t bprs_hash_object (const Bprs_Object *pob, bool *pok);
 extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
