@@ -32,6 +32,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <readline/readline.h>
+#include <sys/random.h>
 
 #ifndef BPRS_SHORTGIT
 #error compile commnd should define BPRS_SHORTGIT

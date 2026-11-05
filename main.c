@@ -98,6 +98,8 @@ bprs_show_usage (void)
   puts ("\t -P | --plugin $PLUGIN    # dlopen given $PLUGIN");
   puts ("\t -R | --random-seed $HEX  # $HEX is an hexadecimal string");
   puts ("\t                          # for initstate(3) of random(3)");
+  puts ("\t                          # if $HEX is . use getrandom(2)");
+  puts ("\t                          # if $HEX is _ use srandom(3)");
   puts ("\t -O | --show-oids $NUM    # show $NUM fresh oids");
 }				/* end of bprs_show_usage */
 
@@ -195,6 +197,14 @@ _bprs_process_progargs (int argc, char **argv)
 	    if (optarg[0] == '_')
 	      {
 		srandom (getpid ());
+	      }
+	    else if (optarg[0] == '.')
+	      {
+		if (getrandom (randbuf, randsiz / 2, 0) < 0)
+		  BPRS_FATAL ("failed to getrandom %d bytes", randsiz / 2);
+		if (!initstate (_bprs_random, randbuf, (size_t) randsiz / 2))
+		  BPRS_FATAL ("initstate %s failed (random %ld)", optarg,
+			      _bprs_random);
 	      }
 	    else
 	      {
