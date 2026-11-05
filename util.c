@@ -17,39 +17,6 @@ static const char _bprs_util_shortgit[] = BPRS_SHORTGIT;
 
 
 static const char _bprs_b36_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-#define BPRS_INT_MAGIC 68140917	/* 0x40fbf75 */
-#define BPRS_MASK_INT 0x7fef
-struct bprs_int_st
-{
-  Bprs_Kind i_kind;
-  int16_t i_gap;
-  int32_t i_magic;
-  int64_t i_val;
-};
-
-#define BPRS_DOUBLE_MAGIC 171454729	/* 0xa383109 */
-#define BPRS_MASK_DOUBLE 0xffff
-struct bprs_double_st
-{
-  Bprs_Kind d_kind;
-  int16_t d_gap;
-  int32_t d_magic;
-  double d_val;
-};
-
-
-#define BPRS_STRING_MAGIC 654689243	/* 0x2705c3db */
-#define BPRS_MASK_STRING 0x3ffd
-struct bprs_string_st
-{
-  Bprs_Kind s_kind;
-  int16_t s_gap;
-  int32_t s_magic;
-  uint32_t s_hash;
-  uint32_t s_bytlen;
-  uint32_t s_utflen;
-  char s_val[];
-};
 
 extern void bprs_last_util (void);
 
@@ -143,11 +110,33 @@ bprs_get_int (const Bprs_Int *p, bool *pok)
   return p->i_val;
 }				/* end bprs_get_int */
 
+
+const Bprs_Value *
+bprs_boxed_int_as_value (const Bprs_Int *p)
+{
+  if (!p || p->i_kind != BprsKind_Int
+      || p->i_magic != BPRS_INT_MAGIC
+      || p->i_gap != ((intptr_t) p & BPRS_MASK_INT))
+    return NULL;
+  return (const Bprs_Value *) p;
+}				/* end bprs_boxed_int_as_value */
+
+const Bprs_Int *
+bprs_value_to_boxed_int (const Bprs_Value *v)
+{
+  if (!v || v->v_kind != BprsKind_Int
+      || v->v_magic != BPRS_INT_MAGIC
+      || v->v_gap != ((intptr_t) v & BPRS_MASK_INT))
+    return NULL;
+  return (const Bprs_Int *) v;
+}				/* end bprs_value_to_boxed_int */
+
 uint32_t
 bprs_hash_int (const Bprs_Int *p, bool *pok)
 {
   if (!p || p->i_kind != BprsKind_Int
-      || p->i_magic != BPRS_INT_MAGIC || p->i_gap != ((intptr_t) p & 0xffff))
+      || p->i_magic != BPRS_INT_MAGIC
+      || p->i_gap != ((intptr_t) p & BPRS_MASK_INT))
     {
       if (pok)
 	*pok = false;
@@ -213,6 +202,26 @@ bprs_hash_double (const Bprs_Double *p, bool *pok)
     h = 17;
   return h;
 }				/* end bprs_hash_double */
+
+const Bprs_Value *
+bprs_boxed_double_as_value (const Bprs_Double *p)
+{
+  if (!p || p->d_kind != BprsKind_Double
+      || p->d_magic != BPRS_DOUBLE_MAGIC
+      || p->d_gap != ((intptr_t) p & BPRS_MASK_DOUBLE))
+    return NULL;
+  return (const Bprs_Value *) p;
+}				/* end bprs_boxed_double_as_value */
+
+const Bprs_Double *
+bprs_value_to_boxed_double (const Bprs_Value *v)
+{
+  if (!v || v->v_kind != BprsKind_Double
+      || v->v_magic != BPRS_DOUBLE_MAGIC
+      || v->v_gap != ((intptr_t) v & BPRS_MASK_DOUBLE))
+    return NULL;
+  return (const Bprs_Double *) v;
+}				/* end bprs_value_to_boxed_double */
 
 uint32_t
 bprs_hash_c_string (const char *s)
@@ -343,6 +352,26 @@ bprs_utf_len_string (const Bprs_String *ps, bool *pok)
   return ps->s_utflen;
 }				/* end bprs_utf_len_string */
 
+
+const Bprs_Value *
+bprs_boxed_string_as_value (const Bprs_String *p)
+{
+  if (!p || p->s_kind != BprsKind_String
+      || p->s_magic != BPRS_STRING_MAGIC
+      || p->s_gap != ((intptr_t) p & BPRS_MASK_STRING))
+    return NULL;
+  return (const Bprs_Value *) p;
+}				/* end bprs_boxed_string_as_value */
+
+const Bprs_String *
+bprs_value_to_boxed_string (const Bprs_Value *v)
+{
+  if (!v || v->v_kind != BprsKind_String
+      || v->v_magic != BPRS_STRING_MAGIC
+      || v->v_gap != ((intptr_t) v & BPRS_MASK_STRING))
+    return NULL;
+  return (const Bprs_String *) v;
+}				/* end bprs_value_to_boxed_string */
 
 void
 bprs_warning_at (const char *srcfil, int lin, const char *fun,
