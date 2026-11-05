@@ -395,7 +395,7 @@ bprs_boxed_object_as_value (const Bprs_Object *obj)
 
 
 const Bprs_Object *
-bprs_value_to_boxed_object (const Bprs_Value *val)
+bprs_value_to_constant_object (const Bprs_Value *val)
 {
   if (!val || (uintptr_t) val < 0x1000
       || val->v_kind != BprsKind_Object
@@ -403,7 +403,18 @@ bprs_value_to_boxed_object (const Bprs_Value *val)
       || val->v_gap != ((intptr_t) val & BPRS_MASK_OBJECT))
     return NULL;
   return (const Bprs_Object *) val;
-}				/* end bprs_value_to_boxed_object */
+}				/* end bprs_value_to_constant_object */
+
+Bprs_Object *
+bprs_value_to_mutable_object (const Bprs_Value *val)
+{
+  if (!val || (uintptr_t) val < 0x1000
+      || val->v_kind != BprsKind_Object
+      || val->v_magic != BPRS_OBJECT_MAGIC
+      || val->v_gap != ((intptr_t) val & BPRS_MASK_OBJECT))
+    return NULL;
+  return (Bprs_Object *) val;
+}				/* end bprs_value_to_mutable_object */
 
 
 Bprs_Object *

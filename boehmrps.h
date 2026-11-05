@@ -160,7 +160,9 @@ struct bprs_object_st
 #define BPRS_MASK_OBJECT 0xf5fc
 
 extern const Bprs_Value *bprs_boxed_object_as_value (const Bprs_Object *obj);
-extern const Bprs_Object *bprs_value_to_boxed_object (const Bprs_Value *val);
+extern const Bprs_Object *bprs_value_to_constant_object (const Bprs_Value
+							 *val);
+extern Bprs_Object *bprs_value_to_mutable_object (const Bprs_Value *val);
 
 extern void bprs_initialize_objects (void);
 extern bool bprs_extract_object_id (const Bprs_Object *pob,
