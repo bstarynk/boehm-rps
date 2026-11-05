@@ -5,3 +5,8 @@ boehm-rps
 rpsboehm
 generated/_*_.c
 _*_.c
+_*_.h
+*.c%
+*.c~
+*.h%
+*.h~
