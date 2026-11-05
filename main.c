@@ -373,6 +373,10 @@ bprs_value_kind (const void *p)
       if (bprs_hash_set ((Bprs_Set *) p, &ok) != 0 && ok)
 	return BprsKind_Set;
       break;
+    case BprsKind_Object:
+      if (bprs_hash_object ((Bprs_Object *) p, &ok) != 0 && ok)
+	return BprsKind_Object;
+      break;
     default:
       break;
     }
