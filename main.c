@@ -190,7 +190,7 @@ _bprs_process_progargs (int argc, char **argv)
 	  break;
 	case 'R':
 	  {
-	    const int randsiz = 256;
+	    int randsiz = 256;
 	    char randbuf[randsiz + 16];
 	    int i = 0;
 	    memset (randbuf, 0, sizeof (randbuf));
@@ -200,11 +200,12 @@ _bprs_process_progargs (int argc, char **argv)
 	      }
 	    else if (optarg[0] == '.')
 	      {
-		if (getrandom (randbuf, randsiz / 2, 0) < 0)
-		  BPRS_FATAL ("failed to getrandom %d bytes", randsiz / 2);
-		if (!initstate (_bprs_random, randbuf, (size_t) randsiz / 2))
-		  BPRS_FATAL ("initstate %s failed (random %ld)", optarg,
-			      _bprs_random);
+		randsiz /= 2;
+		if (getrandom (randbuf, randsiz, 0) < 0)
+		  BPRS_FATAL ("failed to getrandom %d bytes", randsiz);
+		if (!initstate (_bprs_random, randbuf, (size_t) randsiz))
+		  BPRS_FATAL ("initstate %s failed (random %ld) for %d bytes",
+			      optarg, _bprs_random, randsiz);
 	      }
 	    else
 	      {
