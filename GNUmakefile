@@ -34,6 +34,10 @@ indent:
 obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
 
+# compile a generated source file to an object / compile un fichier source généré
+obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
+	$(CC) -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh .)\" -c $< -o $@
+
 # produce a preprocessed file / produit le fichier prétraité
 %.i: %.c $(HUMAN_HEADER)  | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_PREPRO $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
