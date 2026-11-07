@@ -1,4 +1,8 @@
 // file boehm-rps/carbparse.cbrt
+// SPDX-License-Identifier: GPL-3.0-or-later
+// (C) copyright © 2026 Basile STARYNKEVITCH, France
+// email <basile@starynkevitch.net>
+// GPL licensed open source software - no warranty
 #include "boehmrps.h"
 
 struct brps_carbparse_stack;
@@ -32,5 +36,12 @@ INT: [\+\-]?[0-9]+ {
 
 %%
 _Pragma("message \"end carbparse.cbrt in boehm-gc\"");
+
+/****************
+ **                           for Emacs...
+ ** Local Variables: ;;
+ ** compile-command: "make -j3" ;;
+ ** End: ;;
+ ****************/
 
 /* end of file boehm-rps/carbparse.cbrt */
