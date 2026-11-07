@@ -24,9 +24,22 @@ extern int brps_carbparse_parse(struct brps_carbparse_stack *stack, int sym);
 
 %token INT
 
+%type INT: intptr_t
+
+%token DOUBLE
+
+%type DOUBLE: double
+
 INT: [\+\-]?[0-9]+ {
  _Pragma("message \"got Int\"");
+ $$ = atoll($text);
 }
+
+DOUBLE:  [\+\-]?[0-9]+[\.][0-9]* {
+ _Pragma("message \"got Double\"");
+ $$ = atof($text);
+}
+
 
 : [\ \t\r\f]+; 			/*skip whitespace*/
 
