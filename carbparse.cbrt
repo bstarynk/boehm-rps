@@ -12,10 +12,25 @@ extern int brps_carbparse_lex(struct brps_carbparse_stack *stack);
 extern int brps_carbparse_scan(struct brps_carbparse_stack *stack);
 extern int brps_carbparse_parse(struct brps_carbparse_stack *stack, int sym);
 %%
-%prefix brps_carbparse_
 
 
 %scanner%
 
+%prefix brps_carbparse_
+
+%token INT
+
+INT: [\+\-]?[0-9]+ {
+ _Pragma("message \"got Int\"");
+}
 
 : [\ \t\r\f]+; 			/*skip whitespace*/
+
+//: [\n] { _Pragma("message \"got newline\""); };
+
+%grammar%
+
+%%
+_Pragma("message \"end carbparse.cbrt in boehm-gc\"");
+
+/* end of file boehm-rps/carbparse.cbrt */
