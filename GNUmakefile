@@ -64,14 +64,14 @@ _list_.c: GNUmakefile
 	for f in $(GENERATED_C_FILES); do printf "  \"%s\",\n" $$(md5sum $$f</dev/null); done >> $@
 	echo "  (const char*)0 };\n" >> $@
 
-# génère l'analyseur syntaxique / emit the paring file [carburetta.com]
+# génère l'analyseur syntaxique / emit the parsing file [carburetta.com]
 _carbparse_.c: carbparse.cbrt | GNUmakefile
 	$(CARBURETTA) $^  -c  > $@
 	cp $@ $@%
 	$(INDENT) $@
 
 
-# génère l'analyseur syntaxique / emit the paring file [carburetta.com]
+# génère l'analyseur syntaxique / emit the parsing file [carburetta.com]
 _carbparse_nl_.c: carbparse.cbrt | GNUmakefile
 	$(CARBURETTA) $^  -c  --nolinedir > $@
 	cp $@ $@%
