@@ -21,7 +21,7 @@ HUMAN_OBJ_FILES = $(patsubst %.c, obj/%.o, $(HUMAN_C_FILES))
 GENERATED_C_FILES = $(wildcard generated/*.c)
 .SUFFIXES: .i 
 .PHONY: all clean indent
-all: rpsboehm
+all: rpsboehm nlrpsboehm
 
 clean:
 	/bin/rm -vf *~ obj/*.o rpsboehm _*_.c *.i *~ *%
@@ -44,6 +44,16 @@ obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 
 rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
+               $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
+	/bin/mv -vf _list_.c _list_.c~
+
+rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GNUmakefile
+	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
+               $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
+	/bin/mv -vf _list_.c _list_.c~
+
+nlrpsboehm:  $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_nl_.o | $(HUMAN_HEADER) GNUmakefile
+	$(CC) -Wall -ULINK_NLRPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
 	/bin/mv -vf _list_.c _list_.c~
 
@@ -71,7 +81,7 @@ _carbparse_.c: carbparse.cbrt | GNUmakefile
 	$(INDENT) $@
 
 
-# génère l'analyseur syntaxique / emit the parsing file [carburetta.com]
+# génère l'analyseur syntaxique sans #line / emit the parsing file no #line [carburetta.com]
 _carbparse_nl_.c: carbparse.cbrt | GNUmakefile
 	$(CARBURETTA) $^  -c  --nolinedir > $@
 	cp $@ $@%
