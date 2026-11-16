@@ -82,5 +82,14 @@ _carbparse_nl_.c: carbparse.cbrt | GNUmakefile
 	cp $@ $@%
 	$(INDENT) $@
 
+_carbparse_.h:  carbparse.cbrt | GNUmakefile
+	$(CARBURETTA) $^  -h > $@
+	cp $@ $@%
+	$(INDENT) $@
+
+_carbparse_nl_.h:  carbparse.cbrt | GNUmakefile
+	$(CARBURETTA) $^  -h > $@
+	cp $@ $@%
+	$(INDENT) $@
 
 ### end of file / fin du fichier boehm-rps/GNUmakefile
