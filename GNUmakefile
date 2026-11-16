@@ -47,11 +47,6 @@ rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GN
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
 	/bin/mv -vf _list_.c _list_.c~
 
-rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GNUmakefile
-	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
-               $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
-	/bin/mv -vf _list_.c _list_.c~
-
 nlrpsboehm:  $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_nl_.o | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -Wall -ULINK_NLRPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
