@@ -42,15 +42,15 @@ obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 %.i: %.c $(HUMAN_HEADER)  | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_PREPRO $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
 
-rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) GNUmakefile
+rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) _carbparse_.h GNUmakefile
 	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
-	/bin/mv -vf _list_.c _list_.c~
+	-/bin/mv -vf _list_.c _list_.c~
 
-nlrpsboehm:  $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_nl_.o | $(HUMAN_HEADER) GNUmakefile
+nlrpsboehm:  $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_nl_.o | $(HUMAN_HEADER) _carbparse_nl_.h GNUmakefile
 	$(CC) -Wall -ULINK_NLRPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
-	/bin/mv -vf _list_.c _list_.c~
+	-/bin/mv -vf _list_.c _list_.c~
 
 _list_.c: GNUmakefile
 	printf "const char bprs_shortgit[] = \"%s\";\n" \
@@ -70,26 +70,29 @@ _list_.c: GNUmakefile
 	echo "  (const char*)0 };\n" >> $@
 
 # génère l'analyseur syntaxique / emit the parsing file [carburetta.com]
-_carbparse_.c: carbparse.cbrt | GNUmakefile
-	$(CARBURETTA) $^  -c  > $@
-	cp $@ $@%
-	$(INDENT) $@
+_carbparse_.c _carbparse_.h: carbparse.cbrt | GNUmakefile
+	$(CARBURETTA) $^  -c _carbparse_.c -h _carbparse_.h
+	cp _carbparse_.c _carbparse_.c%
+	$(INDENT) _carbparse_.c
+	cp _carbparse_.h _carbparse_.h%
+	$(INDENT) _carbparse_.h
+
+obj/_carbparse_.o: _carbparse_.c _carbparse_.h $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
+	$(CC) -UBPRS_MAKCARBOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh .)\" -c $< -o $@
 
 
 # génère l'analyseur syntaxique sans #line / emit the parsing file no #line [carburetta.com]
-_carbparse_nl_.c: carbparse.cbrt | GNUmakefile
-	$(CARBURETTA) $^  -c  --nolinedir > $@
-	cp $@ $@%
-	$(INDENT) $@
+_carbparse_nl_.c _carbparse_nl_.h : carbparse.cbrt | GNUmakefile
+	$(CARBURETTA) $^ -c  _carbparse_nl_.c -h _carbparse_nl_.h --nolinedir 
+	cp _carbparse_nl_.c _carbparse_nl_.c%
+	$(INDENT) _carbparse_nl_.c
+	cp _carbparse_nl_.h _carbparse_nl_.h%
+	$(INDENT) _carbparse_nl_.h
 
-_carbparse_.h:  carbparse.cbrt | GNUmakefile
-	$(CARBURETTA) $^  -h > $@
-	cp $@ $@%
-	$(INDENT) $@
+obj/_carbparse_nl_.o: _carbparse_nl_.c _carbparse_nl_.h $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
+	$(CC) -UBPRS_MAKCARBNLOBJ -DRPS_NOLINE $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh .)\" -c $< -o $@
 
-_carbparse_nl_.h:  carbparse.cbrt | GNUmakefile
-	$(CARBURETTA) $^  -h > $@
-	cp $@ $@%
-	$(INDENT) $@
+
+
 
 ### end of file / fin du fichier boehm-rps/GNUmakefile
