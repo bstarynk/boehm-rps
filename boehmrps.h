@@ -149,6 +149,7 @@ struct bprs_object_st
   uint32_t ob_hi;
   uint64_t ob_lo;
   char ob_prefixrout[8];
+  const char *ob_symbname;	/* GC_STRDUP-ed */
   void *ob_routptr;
   pthread_mutex_t ob_mtx;
   struct bprs_attrpair_st *ob_attrs;
@@ -255,6 +256,9 @@ extern Bprs_Object *bprs_object_find (uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_load (FILE *fil, uint32_t hi, uint64_t lo);
 extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
 extern bool bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz);
+extern bool bprs_object_to_name_or_str (Bprs_Object *pob, char *buf,
+					unsigned bufsiz);
+
 extern int bprs_object_cmp (const void *pobleft, const void *pobright);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);
 

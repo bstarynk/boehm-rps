@@ -534,6 +534,61 @@ bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
 }				/* end bprs_object_to_str */
 
 
+bool
+bprs_object_to_name_or_str (Bprs_Object *pob, char *buf, unsigned bufsiz)
+{
+  bool ok = false;
+  uint32_t hi = 0;
+  uint64_t lo = 0;
+  int n = 0;
+  if (!buf || !bufsiz)
+    return false;
+  buf[0] = (char) 0;
+  char bufhi[32];
+  char buflo[40];
+  if (!bprs_extract_object_id (pob, &hi, &lo))
+    {
+      if (buf && bufsiz > 0)
+	buf[0] = (char) 0;
+      return false;
+    };
+  memset (bufhi, 0, sizeof (bufhi));
+  memset (buflo, 0, sizeof (buflo));
+  pthread_mutex_lock (&pob->ob_mtx);
+  if (pob->ob_symbname)
+    {
+      unsigned symlen = strlen (pob->ob_symbname);
+      if (symlen < bufsiz)
+	{
+	  strcpy (buf, pob->ob_symbname);
+	  ok = true;
+	}
+      else
+	{
+	  buf[0] = (char) 0;
+	  ok = false;
+	  goto end;
+	};
+    }
+  else
+    {
+      memset (bufhi, 0, sizeof (bufhi));
+      memset (buflo, 0, sizeof (buflo));
+      if (bprs_uint64_to_b36 ((uint64_t) hi, bufhi, sizeof (bufhi) - 1)
+	  && bprs_uint64_to_b36 ((uint64_t) lo, buflo, sizeof (buflo) - 1)
+	  && strlen (bufhi) + strlen (buflo) + 3 < bufsiz
+	  && (n = snprintf (buf, bufsiz, "_%s_%s", bufhi, buflo)) > 0
+	  && n < (int) bufsiz)
+	ok = true;
+      goto end;
+    };
+end:
+  pthread_mutex_unlock (&pob->ob_mtx);
+  return ok;
+}				/* end bprs_object_to_name_or_str */
+
+
+
 Bprs_Object *
 bprs_object_load (FILE *fil, uint32_t idhi, uint64_t idlo)
 {
@@ -605,6 +660,9 @@ bprs_object_make (unsigned compsize, unsigned attrsize)
   pob->ob_sizattr = attrsize;
   pob->ob_hi = idhi;
   pob->ob_lo = idlo;
+  memset (pob->ob_prefixrout, 0, sizeof (pob->ob_prefixrout));
+  pob->ob_routptr = NULL;
+  pob->ob_symbname = NULL;
   pthread_mutex_init (&pob->ob_mtx, NULL);
   pob->ob_attrs =
     GC_MALLOC ((attrsize + 1) * sizeof (struct bprs_attrpair_st));
