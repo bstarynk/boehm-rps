@@ -24,6 +24,8 @@
 #include <math.h>
 #include <string.h>
 #include <unistr.h>
+#include <unitypes.h>
+#include <unictype.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <syslog.h>
@@ -166,6 +168,7 @@ extern const Bprs_Object *bprs_value_to_constant_object (const Bprs_Value
 							 *val);
 extern Bprs_Object *bprs_value_to_mutable_object (const Bprs_Value *val);
 
+extern void bprs_initialize_symbols (void);
 extern void bprs_initialize_objects (void);
 extern bool bprs_extract_object_id (const Bprs_Object *pob,
 				    uint32_t *phi, uint64_t *plo);
@@ -258,6 +261,12 @@ extern Bprs_Object *bprs_object_make (unsigned compsize, unsigned attrsize);
 extern bool bprs_object_to_str (Bprs_Object *pob, char *buf, unsigned bufsiz);
 extern bool bprs_object_to_name_or_str (Bprs_Object *pob, char *buf,
 					unsigned bufsiz);
+extern const char *bprs_object_get_name (Bprs_Object *pob);
+
+extern bool bprs_object_register_name (Bprs_Object *pob, const char *name);
+extern bool bprs_object_forget_name (Bprs_Object *pob);
+
+extern Bprs_Object *bprs_named_object (const char *name);
 
 extern int bprs_object_cmp (const void *pobleft, const void *pobright);
 extern uint32_t bprs_hash_for_object_hi_lo (uint32_t hi, uint64_t lo);

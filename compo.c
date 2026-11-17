@@ -679,9 +679,150 @@ end:
   return pob;
 }				/* end bprs_object_make */
 
+static pthread_mutex_t bprs_name_mtx = PTHREAD_MUTEX_INITIALIZER;
+static unsigned bprs_size_namevect;
+static unsigned bprs_count_namevect;
+static const Bprs_Object **bprs_namevect;
 
+void
+bprs_initialize_symbols (void)
+{
+  static bool inited;
+  if (inited)
+    return;
+  const unsigned inisiz = 83;
+  bprs_namevect = GC_MALLOC (inisiz * sizeof (Bprs_Object *));
+  assert (bprs_namevect != NULL);
+  memset (bprs_namevect, 0, inisiz * sizeof (Bprs_Object *));
+  bprs_size_namevect = inisiz;
+  bprs_count_namevect = 0;
+  inited = true;
+}				/* end bprs_initialize_symbols */
 
+const char *
+bprs_object_get_name (Bprs_Object *pob)
+{
+  if (!pob || (uintptr_t) pob < 0x1000
+      || pob->ob_kind != BprsKind_Object
+      || pob->ob_magic != BPRS_OBJECT_MAGIC
+      || pob->ob_gap != ((intptr_t) pob & BPRS_MASK_OBJECT))
+    return NULL;
+  return pob->ob_symbname;
+}				/* end bprs_object_get_name */
 
+bool
+bprs_object_register_name (Bprs_Object *pob, const char *name)
+{
+  bool ok = false;
+  const uint8_t *us = (const uint8_t *) name;
+  unsigned bytlen = 0;
+  if (!pob || (uintptr_t) pob < 0x1000
+      || pob->ob_kind != BprsKind_Object
+      || pob->ob_magic != BPRS_OBJECT_MAGIC
+      || pob->ob_gap != ((intptr_t) pob & BPRS_MASK_OBJECT))
+    return false;
+  if (!name)
+    return false;
+  bytlen = strlen (name);
+  if (pob->ob_symbname)
+    return false;
+  int cnt = 0;
+  while (us && *us)
+    {
+      ucs4_t uc = 0;
+      int l = u8_mbtoucr (&uc, us, name + bytlen - (char *) us);
+      if (l < 0)
+	BPRS_FATAL ("corrupted UTF8 name %s", name);
+      cnt++;
+      us += l;
+      if (uc == '_' || uc == '$')
+	continue;
+      if (isdigit (uc) && (char *) us > name)
+	continue;
+      if (uc < 128 && isalpha (uc))
+	continue;
+      if (uc_is_general_category_withtable (uc, UC_CATEGORY_MASK_L))
+	continue;
+      // bad name
+      BPRS_WARNING ("name %s is invalid for object", name);
+      return false;
+    }
+  /// the name is good
+  int hi = 0, lo = 0, md = 0;
+  size_t namelen = strlen (name);
+  assert (bprs_count_namevect < bprs_size_namevect);
+  assert (bprs_namevect != NULL);
+  pthread_mutex_lock (&bprs_name_mtx);
+  if (bprs_count_namevect + 2 >= bprs_size_namevect)
+    {
+      unsigned newsiz = 1 + ((5 * bprs_count_namevect / 4 + 10) | 7);
+      assert (newsiz > bprs_size_namevect);
+      const Bprs_Object **newvect
+	= GC_MALLOC (newsiz * sizeof (Bprs_Object *));
+      memset (newvect, 0, newsiz * sizeof (Bprs_Object *));
+      memcpy (newvect, bprs_namevect,
+	      bprs_count_namevect * sizeof (Bprs_Object *));
+      GC_FREE (bprs_namevect);
+      bprs_namevect = newvect;
+      bprs_size_namevect = newsiz;
+    };
+  hi = bprs_count_namevect;
+  unsigned loopcnt = 0;
+  const unsigned maxloopcnt = 60;
+  Bprs_Object *curob = NULL;
+  const char *curname = NULL;
+  if (hi == 0)
+    {
+      bprs_namevect[0] = pob;
+      pob->ob_symbname = GC_STRDUP (name);
+      bprs_count_namevect = 1;
+      ok = true;
+      goto end;
+    };
+  while (lo + 4 < hi && loopcnt++ < maxloopcnt)
+    {
+      md = (lo + hi) / 2;
+      curob = bprs_namevect[md];
+      assert (curob != NULL && curob->ob_kind == BprsKind_Object
+	      && curob->ob_magic == BPRS_OBJECT_MAGIC);
+      pthread_mutex_lock (&curob->ob_mtx);
+      curname = curob->ob_symbname;
+      pthread_mutex_unlock (&curob->ob_mtx);
+      assert (curname != NULL);
+      int cmp = u8_cmp2 ((const uint8_t *) curname, strlen (curname),
+			 (const uint8_t *) name, namelen);
+      if (!cmp)
+	goto end;
+      if (cmp < 0)
+	lo = md;
+      else
+	hi = md;
+    };
+  for (md = lo; md < hi && loopcnt++ < maxloopcnt; md++)
+    {
+      md = (lo + hi) / 2;
+      curob = bprs_namevect[md];
+      assert (curob != NULL && curob->ob_kind == BprsKind_Object
+	      && curob->ob_magic == BPRS_OBJECT_MAGIC);
+      pthread_mutex_lock (&curob->ob_mtx);
+      curname = curob->ob_symbname;
+      pthread_mutex_unlock (&curob->ob_mtx);
+      assert (curname != NULL);
+      int cmp = u8_cmp2 ((const uint8_t *) curname, strlen (curname),
+			 (const uint8_t *) name, namelen);
+      if (!cmp)
+	goto end;
+      if (cmp < 0)
+	continue;
+      for (int i = bprs_count_namevect + 1; i > md; i++)
+	bprs_namevect[i] = bprs_namevect[i - 1];
+      bprs_namevect[md] = pob;
+      bprs_count_namevect++;
+    }
+end:
+  pthread_mutex_unlock (&bprs_name_mtx);
+  return ok;
+}				/* end bprs_object_register_name */
 
 Bprs_Set *
 bprs_set_make_arr (const void **ptr, unsigned siz)
