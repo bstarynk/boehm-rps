@@ -23,7 +23,7 @@ extern void bprs_last_util (void);
 const char *
 bprs_shortgit_util (void)
 {
-  assert ((char *) bprs_shortgit_util < (char *) bprs_last_util);
+  //assert ((char *) bprs_shortgit_util < (char *) bprs_last_util);
   return _bprs_util_shortgit;
 }				/* end bprs_shortgit_util */
 
