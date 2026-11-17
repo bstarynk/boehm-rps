@@ -196,7 +196,7 @@ _bprs_process_progargs (int argc, char **argv)
 	    memset (randbuf, 0, sizeof (randbuf));
 	    if (optarg[0] == '_')
 	      {
-		srandom (getpid ());
+		srandom (getpid () ^ time(NULL));
 	      }
 	    else if (optarg[0] == '.')
 	      {
@@ -257,7 +257,9 @@ bprs_executable (void)
   ssize_t rsiz = readlink ("/proc/self/exe", buf, sizeof (buf) - 1);
   if (rsiz > 0 && buf[0])
     {
-      _bprs_execpath = GC_MALLOC_ATOMIC (1 + ((rsiz + 15) | 0xf));
+      unsigned psiz = 1 + ((rsiz + 15) | 0xf);
+      _bprs_execpath = GC_MALLOC_ATOMIC (psiz);
+      memset (_bprs_execpath, 0, psiz);
       strncpy (_bprs_execpath, buf, rsiz);
       return _bprs_execpath;
     }
