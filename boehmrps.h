@@ -168,6 +168,9 @@ extern const Bprs_Object *bprs_value_to_constant_object (const Bprs_Value
 							 *val);
 extern Bprs_Object *bprs_value_to_mutable_object (const Bprs_Value *val);
 
+/// every plugin should have an initialization routine returning true on success
+typedef bool bprs_plugin_initsig_t (const char *);
+#define BPRS_PLUGIN_INIT_NAME "bprs_plugin_init"
 extern void bprs_initialize_symbols (void);
 extern void bprs_initialize_objects (void);
 extern bool bprs_extract_object_id (const Bprs_Object *pob,
