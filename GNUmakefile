@@ -17,6 +17,7 @@ LDFLAGS += $(shell pkg-config --libs $(PACKAGEDLIBS))
 HUMAN_HEADER= boehmrps.h
 HUMAN_C_FILES = $(wildcard [a-z]*.c)
 HUMAN_OBJ_FILES = $(patsubst %.c, obj/%.o, $(HUMAN_C_FILES))
+HUMAN_OBJ_NOLINE_FILES = $(patsubst %.c, obj/%.nl.o, $(HUMAN_C_FILES))
 ### convention generated/_*_.c are temporary
 GENERATED_C_FILES = $(wildcard generated/*.c)
 .SUFFIXES: .i 
@@ -34,6 +35,10 @@ indent:
 obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
 
+# compile a source file to an object / compile un fichier source
+obj/%.nl.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
+	$(CC) -DBPRS_NOLINE -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
+
 # compile a generated source file to an object / compile un fichier source généré
 obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh .)\" -c $< -o $@
@@ -45,12 +50,12 @@ obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) _carbparse_.h GNUmakefile
 	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
-	-/bin/mv -vf _list_.c _list_.c~
+	-[ -f _list_c.c ] && /bin/mv -vf _list_.c _list_.c~
 
-nlrpsboehm:  $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_nl_.o | $(HUMAN_HEADER) _carbparse_nl_.h GNUmakefile
+nlrpsboehm:  $(HUMAN_OBJ_NOLINE_FILES) obj/_list_.nl.o obj/_carbparse_nl_.o | $(HUMAN_HEADER) _carbparse_nl_.h GNUmakefile
 	$(CC) -Wall -ULINK_NLRPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
-	-/bin/mv -vf _list_.c _list_.c~
+	-[ -f _list_c.c ] && /bin/mv -vf _list_.c _list_.c~
 
 _list_.c: GNUmakefile
 	printf "const char bprs_shortgit[] = \"%s\";\n" \
