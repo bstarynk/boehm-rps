@@ -340,20 +340,20 @@ main (int argc, char **argv)
 }                               /* end main */
 
 int
-brps_argc (void)
+bprs_argc (void)
 {
   return _bprs_argc;
-}                               /* end of brps_argc */
+}                               /* end of bprs_argc */
 
 const char *
-brps_progargv (int rk)
+bprs_progargv (int rk)
 {
   if (rk < 0)
     rk += _bprs_argc;
   if (rk >= 0 && rk < _bprs_argc)
     return _bprs_argv[rk];
   return NULL;
-}                               /* end of brps_argc */
+}                               /* end of bprs_argc */
 
 void *
 bprs_program_dlhandle (void)
