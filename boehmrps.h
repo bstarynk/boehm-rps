@@ -292,7 +292,7 @@ extern const char *bprs_shortgit_load (void);
 extern Bprs_Loaded_File *bprs_open_load_file (const char *path);
 extern void bprs_process_loaded_file (Bprs_Loaded_File *);
 
-#ifdef BPRS_NOLINE
+#if BPRS_NOLINE
 #pragma message "including carbparse_nl_.h"
 #include "_carbparse_nl_.h"
 #else
