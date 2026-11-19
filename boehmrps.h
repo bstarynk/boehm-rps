@@ -55,6 +55,8 @@ enum bprs_kind_en
 };
 typedef enum bprs_kind_en Bprs_Kind;
 
+struct bprs_carbparse_stack;
+
 struct bprs_value_st
 {
   const Bprs_Kind v_kind;
@@ -189,11 +191,11 @@ extern const char bprs_shortgit[];
 extern const char bprs_sourcedir[];
 extern const char *bprs_human_files[];
 
-/// convention: our human written functions are named brps_*
+/// convention: our human written functions are named bprs_*
 
 //// functions in main.c:::::
-extern int brps_argc (void);
-extern const char *brps_progargv (int rk);
+extern int bprs_argc (void);
+extern const char *bprs_progargv (int rk);
 extern const char *bprs_shortgit_main (void);
 extern void *bprs_dlsym (const char *name);
 extern void bprs_warning_at (const char *srcfil, int lin, const char *fun,
@@ -290,7 +292,13 @@ extern const char *bprs_shortgit_load (void);
 extern Bprs_Loaded_File *bprs_open_load_file (const char *path);
 extern void bprs_process_loaded_file (Bprs_Loaded_File *);
 
-
+#ifdef BPRS_NOLINE
+#pragma message "including carbparse_nl_.h"
+#include "_carbparse_nl_.h"
+#else
+#pragma message "including _carbparse_.h"
+#include "_carbparse_.h"
+#endif
 
 /****************
  **                           for GNU Emacs...
