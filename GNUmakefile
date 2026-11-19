@@ -25,7 +25,7 @@ GENERATED_C_FILES = $(wildcard generated/*.c)
 all: rpsboehm nlrpsboehm
 
 clean:
-	/bin/rm -vf *~ obj/*.o rpsboehm _*_.c *.i *~ *% core*
+	/bin/rm -vf *~ obj/*.o rpsboehm nlrpsboehm  _*_.c *.i *~ *% core* _carb*h
 
 indent:
 	$(INDENT) -v $(HUMAN_HEADER)
