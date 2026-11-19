@@ -22,22 +22,24 @@ HUMAN_OBJ_NOLINE_FILES = $(patsubst %.c, obj/%.nl.o, $(HUMAN_C_FILES))
 GENERATED_C_FILES = $(wildcard generated/*.c)
 .SUFFIXES: .i 
 .PHONY: all clean indent
-all: rpsboehm nlrpsboehm
+all:
+	$(MAKE) _carbparse_.h _carbparse_nl_.h
+	$(MAKE) rpsboehm nlrpsboehm
 
 clean:
-	/bin/rm -vf *~ obj/*.o rpsboehm nlrpsboehm  _*_.c *.i *~ *% core* _carb*h
+	/bin/rm -vf *~ obj/*.o rpsboehm nlrpsboehm  _*_.c *.i *~ *% core* _carbpar*
 
 indent:
 	$(INDENT) -v $(HUMAN_HEADER)
 	for f in $(HUMAN_C_FILES) ; do  $(INDENT) -v $$f; done
 
 # compile a source file to an object / compile un fichier source
-obj/%.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
+obj/%.o: %.c $(HUMAN_HEADER)  _carbparse_.h | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
 
 # compile a source file to an object / compile un fichier source
-obj/%.nl.o: %.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
-	$(CC) -DBPRS_NOLINE -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
+obj/%.nl.o: %.c $(HUMAN_HEADER)  _carbparse_nl_.h  | GNUmakefile get-short-git.sh
+	$(CC) -DBPRS_NOLINE=1 -UBPRS_MAKOBJ $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -c $< -o $@
 
 # compile a generated source file to an object / compile un fichier source généré
 obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
@@ -47,7 +49,7 @@ obj/_%.o: _%.c $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
 %.i: %.c $(HUMAN_HEADER)  | GNUmakefile get-short-git.sh
 	$(CC) -UBPRS_PREPRO $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh $^)\" -C -E $< | sed 's:^#://#:g' | $(INDENT) > $@
 
-rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o | $(HUMAN_HEADER) _carbparse_.h GNUmakefile
+rpsboehm: $(HUMAN_OBJ_FILES) obj/_list_.o obj/_carbparse_.o _carbparse_.h | $(HUMAN_HEADER) GNUmakefile
 	$(CC) -Wall -ULINK_RPSBOEHM -g $(OPTIM)  $^ \
                $(LDFLAGS) -rdynamic -lunistring -lm -ldl -o $@
 	-[ -f _list_c.c ] && /bin/mv -vf _list_.c _list_.c~
@@ -95,7 +97,7 @@ _carbparse_nl_.c _carbparse_nl_.h : carbparse.cbrt | GNUmakefile
 	$(INDENT) _carbparse_nl_.h
 
 obj/_carbparse_nl_.o: _carbparse_nl_.c _carbparse_nl_.h $(HUMAN_HEADER) | GNUmakefile get-short-git.sh
-	$(CC) -UBPRS_MAKCARBNLOBJ -DRPS_NOLINE $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh .)\" -c $< -o $@
+	$(CC) -UBPRS_MAKCARBNLOBJ -DRPS_NOLINE=1 $(CFLAGS) -DBPRS_SHORTGIT=\"$(shell ./get-short-git.sh .)\" -c $< -o $@
 
 
 

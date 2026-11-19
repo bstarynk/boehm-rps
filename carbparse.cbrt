@@ -5,22 +5,22 @@
 // GPL licensed open source software - no warranty
 #include "boehmrps.h"
 
-struct brps_carbparse_stack;
+struct bprs_carbparse_stack;
 
 %header%
-struct brps_carbparse_stack;
+struct bprs_carbparse_stack;
 #pragma message "header part of carbparse.cbrt in boehm-rps"
-extern void brps_carbparse_stack_init(struct bprs_carbparse_stack *stack);
-extern void brps_carbparse_stack_cleanup(struct bprs_carbparse_stack *stack);
-extern int brps_carbparse_lex(struct brps_carbparse_stack *stack);
-extern int brps_carbparse_scan(struct brps_carbparse_stack *stack);
-extern int brps_carbparse_parse(struct brps_carbparse_stack *stack, int sym);
+extern void bprs_carbparse_stack_init(struct bprs_carbparse_stack *stack);
+extern void bprs_carbparse_stack_cleanup(struct bprs_carbparse_stack *stack);
+extern int bprs_carbparse_lex(struct bprs_carbparse_stack *stack);
+extern int bprs_carbparse_scan(struct bprs_carbparse_stack *stack);
+extern int bprs_carbparse_parse(struct bprs_carbparse_stack *stack, int sym);
 %%
 
 
 %scanner%
 
-%prefix brps_carbparse_
+%prefix bprs_carbparse_
 
 %token INT
 
